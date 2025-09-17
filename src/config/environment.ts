@@ -13,6 +13,7 @@ interface EnvironmentConfig {
   JWT_EXPIRES_IN: string;
   BCRYPT_ROUNDS: number;
   CORS_ORIGIN: string;
+  ALLOWED_ORIGINS?: string | undefined;
   LOG_LEVEL: string;
 }
 
@@ -46,8 +47,12 @@ export const config: EnvironmentConfig = {
   JWT_EXPIRES_IN: getEnvVar('JWT_EXPIRES_IN', '24h'),
   BCRYPT_ROUNDS: getEnvNumber('BCRYPT_ROUNDS', 12),
   CORS_ORIGIN: getEnvVar('CORS_ORIGIN', 'http://localhost:3000'),
+  ALLOWED_ORIGINS: process.env['ALLOWED_ORIGINS'],
   LOG_LEVEL: getEnvVar('LOG_LEVEL', 'info'),
 };
+
+// Export as environment for easier access
+export const environment = config;
 
 export const isDevelopment = (): boolean => config.NODE_ENV === 'development';
 export const isProduction = (): boolean => config.NODE_ENV === 'production';

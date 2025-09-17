@@ -1,2 +1,3 @@
 // Controllers barrel export
-// Files will be exported here as they are implemented
+export { AuthController } from './auth-controller';
+export { ServiceController } from './service-controller';

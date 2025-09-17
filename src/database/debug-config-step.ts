@@ -23,7 +23,9 @@ const databaseConfig = {
 console.log('Step 6: Database config created:', databaseConfig);
 
 console.log('Step 7: Getting current config');
-const currentConfig = databaseConfig[config.NODE_ENV as keyof typeof databaseConfig] || databaseConfig.development;
+const currentConfig =
+  databaseConfig[config.NODE_ENV as keyof typeof databaseConfig] ||
+  databaseConfig.development;
 console.log('Step 8: Current config:', currentConfig);
 
 console.log('Step 9: Creating Sequelize instance');

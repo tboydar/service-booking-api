@@ -1,2 +1,7 @@
 // Repositories barrel export
-// Files will be exported here as they are implemented
+export * from './user-repository';
+export * from './appointment-service-repository';
+
+// Re-export for convenience
+export { default as UserRepository } from './user-repository';
+export { default as AppointmentServiceRepository } from './appointment-service-repository';

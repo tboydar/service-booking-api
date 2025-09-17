@@ -1,2 +1,3 @@
 // Services barrel export
-// Files will be exported here as they are implemented
+export { AuthService } from './auth-service';
+export { ServiceManagementService } from './service-management-service';
