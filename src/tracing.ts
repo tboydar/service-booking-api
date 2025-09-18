@@ -13,7 +13,7 @@ import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-http';
 console.log('Initializing OpenTelemetry tracing...');
 
 const traceExporter = new OTLPTraceExporter({
-  url: process.env.OTEL_EXPORTER_OTLP_ENDPOINT || 'http://localhost:4318/v1/traces',
+  url: process.env['OTEL_EXPORTER_OTLP_ENDPOINT'] || 'http://localhost:4318/v1/traces',
   headers: {},
 });
 
@@ -26,6 +26,7 @@ const sdk = new NodeSDK({
       },
       '@opentelemetry/instrumentation-http': {
         enabled: true,
+        // @ts-ignore - ignoreIncomingPaths is a valid option
         ignoreIncomingPaths: ['/health', '/metrics', '/favicon.ico'],
       },
     }),
@@ -35,8 +36,8 @@ const sdk = new NodeSDK({
 // 啟動 SDK
 try {
   sdk.start();
-  console.log(`✅ OpenTelemetry tracing initialized for ${process.env.OTEL_SERVICE_NAME || 'service-booking-api'}`);
-  console.log(`📡 Sending traces to: ${process.env.OTEL_EXPORTER_OTLP_ENDPOINT || 'http://localhost:4318/v1/traces'}`);
+  console.log(`✅ OpenTelemetry tracing initialized for ${process.env['OTEL_SERVICE_NAME'] || 'service-booking-api'}`);
+  console.log(`📡 Sending traces to: ${process.env['OTEL_EXPORTER_OTLP_ENDPOINT'] || 'http://localhost:4318/v1/traces'}`);
 } catch (error) {
   console.error('❌ Error initializing OpenTelemetry tracing:', error);
 }
@@ -76,8 +77,8 @@ export async function withSpan<T>(
   const tracer = getTracer();
   const span = tracer.startSpan(name, {
     kind: options?.kind || SpanKind.INTERNAL,
-    attributes: options?.attributes,
-  });
+    attributes: options?.attributes || undefined,
+  } as opentelemetry.SpanOptions);
 
   try {
     const result = await fn();

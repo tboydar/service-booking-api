@@ -71,7 +71,7 @@ export class AuthService {
         token,
       },
       timestamp: new Date().toISOString(),
-    };
+    } as LoginResponse;
   }
 
   /**
@@ -118,7 +118,7 @@ export class AuthService {
         token,
       },
       timestamp: new Date().toISOString(),
-    };
+    } as LoginResponse;
   }
 
   /**
