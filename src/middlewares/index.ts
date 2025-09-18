@@ -1,5 +1,2 @@
 // Middlewares barrel export
-export * from './error-handler';
-export * from './validation';
-export * from './jwt-auth';
-export * from './cors';
+// Files will be exported here as they are implemented
