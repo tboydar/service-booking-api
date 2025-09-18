@@ -157,6 +157,37 @@ export class ServiceController {
       throw error;
     }
   };
+
+  /**
+   * Restore a soft-deleted service (requires authentication)
+   * PUT /services/:id/restore
+   */
+  restoreService = async (ctx: Context): Promise<void> => {
+    try {
+      const { id } = (ctx as any).params as UuidParam;
+
+      const result = await this.serviceManagementService.restoreService(id);
+
+      ctx.status = 200;
+      ctx.body = result;
+    } catch (error: any) {
+      // Handle service-specific errors
+      if (error.message.startsWith('NOT_FOUND_ERROR:')) {
+        throw new AppError('NOT_FOUND_ERROR', 'Service not found', 404);
+      }
+
+      if (error.message.startsWith('VALIDATION_ERROR:')) {
+        throw new AppError(
+          'VALIDATION_ERROR',
+          error.message.replace('VALIDATION_ERROR: ', ''),
+          400
+        );
+      }
+
+      // Re-throw unknown errors
+      throw error;
+    }
+  };
 }
 
 export default ServiceController;

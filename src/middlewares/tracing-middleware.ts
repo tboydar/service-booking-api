@@ -236,7 +236,7 @@ export async function tracedBusinessLogic(ctx: Context) {
  * 捕獲並記錄應用程式錯誤
  */
 export function errorTracingMiddleware() {
-  return async (ctx: Context, next: Next) => {
+  return async (_ctx: Context, next: Next) => {
     try {
       await next();
     } catch (error: any) {

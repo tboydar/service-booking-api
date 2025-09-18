@@ -15,6 +15,7 @@ import koaStatic from 'koa-static';
 import * as path from 'path';
 import { tracingMiddleware, performanceTracingMiddleware } from './middlewares/tracing-middleware';
 import swaggerRoutes from './routes/swagger-routes';
+import { initializeRateLimiters, generalRateLimit, closeRateLimiters } from './middlewares/rate-limiter';
 
 /**
  * Create and configure Koa application
@@ -31,6 +32,9 @@ const createApp = (): Koa => {
 
   // CORS middleware
   app.use(getCorsMiddleware());
+
+  // Rate limiting middleware (before body parser)
+  app.use(generalRateLimit);
 
   // Body parser middleware
   app.use(
@@ -113,12 +117,18 @@ const startServer = async (): Promise<void> => {
     await initializeDatabase();
     console.log('Database initialized successfully');
 
+    // Initialize rate limiters
+    initializeRateLimiters();
+
     // Create and start Koa app
     const app = createApp();
     const server = app.listen(config.PORT, () => {
       console.log(`🚀 Server running on port ${config.PORT}`);
       console.log(`📊 Environment: ${config.NODE_ENV}`);
       console.log(`🏥 Health check: http://localhost:${config.PORT}/health`);
+      if (config.RATE_LIMIT_ENABLED) {
+        console.log(`🔒 Rate limiting: Enabled`);
+      }
       console.log(`🖥️  Admin Panel: http://localhost:${config.PORT}/admin`);
       console.log(`📚 API endpoints:`);
       console.log(`   POST /auth/register - User registration`);
@@ -145,6 +155,7 @@ const startServer = async (): Promise<void> => {
       console.log(`\n${signal} received. Shutting down gracefully...`);
       server.close(() => {
         console.log('Server closed');
+        closeRateLimiters();
         process.exit(0);
       });
     };

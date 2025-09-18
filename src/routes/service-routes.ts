@@ -7,6 +7,7 @@ import {
   updateServiceSchema,
   uuidParamSchema,
 } from '../validation/service.schemas';
+import { apiRateLimit } from '../middlewares/rate-limiter';
 
 /**
  * Service management routes
@@ -22,7 +23,7 @@ export const createServiceRoutes = (
    * GET /services
    * Get all public services (no authentication required)
    */
-  router.get('/', controller.getServices);
+  router.get('/', apiRateLimit, controller.getServices);
 
   /**
    * GET /services/:id
@@ -30,6 +31,7 @@ export const createServiceRoutes = (
    */
   router.get(
     '/:id',
+    apiRateLimit,
     validateParams(uuidParamSchema),
     controller.getServiceById
   );
@@ -40,6 +42,7 @@ export const createServiceRoutes = (
    */
   router.post(
     '/',
+    apiRateLimit,
     jwtAuth,
     validateBody(createServiceSchema),
     controller.createService
@@ -51,6 +54,7 @@ export const createServiceRoutes = (
    */
   router.put(
     '/:id',
+    apiRateLimit,
     jwtAuth,
     validateParams(uuidParamSchema),
     validateBody(updateServiceSchema),
@@ -66,6 +70,17 @@ export const createServiceRoutes = (
     jwtAuth,
     validateParams(uuidParamSchema),
     controller.deleteService
+  );
+
+  /**
+   * PUT /services/:id/restore
+   * Restore a soft-deleted service (requires authentication)
+   */
+  router.put(
+    '/:id/restore',
+    jwtAuth,
+    validateParams(uuidParamSchema),
+    controller.restoreService
   );
 
   return router;

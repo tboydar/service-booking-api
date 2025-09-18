@@ -21,13 +21,13 @@ const adminController = new AdminController(systemService, loggerService, schedu
 
 // Serve static files
 router.get('/css/:file', async (ctx: Context) => {
-  const filePath = path.join(__dirname, '../../admin/public/css', ctx.params['file']);
+  const filePath = path.join(__dirname, '../../admin/public/css', ctx['params']['file']);
   ctx.type = 'text/css';
   ctx.body = await fs.readFile(filePath, 'utf-8');
 });
 
 router.get('/js/:file', async (ctx: Context) => {
-  const filePath = path.join(__dirname, '../../admin/public/js', ctx.params['file']);
+  const filePath = path.join(__dirname, '../../admin/public/js', ctx['params']['file']);
   ctx.type = 'application/javascript';
   ctx.body = await fs.readFile(filePath, 'utf-8');
 });

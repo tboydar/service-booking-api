@@ -93,6 +93,19 @@ export class AppointmentServiceRepository {
   }
 
   /**
+   * Restore soft-deleted service by ID
+   */
+  async restoreById(id: string): Promise<AppointmentService | null> {
+    const service = await AppointmentService.findByPk(id);
+    if (!service) {
+      return null;
+    }
+
+    await service.update({ isRemove: false });
+    return service;
+  }
+
+  /**
    * Hard delete service by ID
    */
   async deleteById(id: string): Promise<boolean> {

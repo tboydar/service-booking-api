@@ -299,7 +299,7 @@ export class AdminController {
 
   async updateSchedulerTask(ctx: Context): Promise<void> {
     try {
-      const id = ctx.params['id'];
+      const id = ctx['params']['id'];
       const taskData = ctx.request.body as any;
       const task = await this.schedulerService.updateTask(id, taskData);
 
@@ -323,7 +323,7 @@ export class AdminController {
 
   async deleteSchedulerTask(ctx: Context): Promise<void> {
     try {
-      const id = ctx.params['id'];
+      const id = ctx['params']['id'];
       await this.schedulerService.deleteTask(id);
 
       ctx.status = 200;

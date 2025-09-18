@@ -1,27 +1,27 @@
-import { Service } from '../models';
+import { AppointmentService } from '../models';
 
 export class ServiceRepository {
-  async findAll(): Promise<Service[]> {
-    return Service.findAll();
+  async findAll(): Promise<AppointmentService[]> {
+    return AppointmentService.findAll();
   }
 
-  async findById(id: string): Promise<Service | null> {
-    return Service.findByPk(id);
+  async findById(id: string): Promise<AppointmentService | null> {
+    return AppointmentService.findByPk(id);
   }
 
-  async create(serviceData: Partial<Service>): Promise<Service> {
-    return Service.create(serviceData);
+  async create(serviceData: Partial<AppointmentService>): Promise<AppointmentService> {
+    return AppointmentService.create(serviceData as any);
   }
 
-  async update(id: string, serviceData: Partial<Service>): Promise<[number, Service[]]> {
-    return Service.update(serviceData, { where: { id }, returning: true });
+  async update(id: string, serviceData: Partial<AppointmentService>): Promise<[number, AppointmentService[]]> {
+    return AppointmentService.update(serviceData, { where: { id }, returning: true } as any);
   }
 
   async delete(id: string): Promise<number> {
-    return Service.destroy({ where: { id } });
+    return AppointmentService.destroy({ where: { id } });
   }
 
   async count(): Promise<number> {
-    return Service.count();
+    return AppointmentService.count();
   }
 }

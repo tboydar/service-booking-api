@@ -67,6 +67,7 @@
     "@opentelemetry/semantic-conventions": "^1.37.0",
     "axios": "^1.12.2",
     "bcrypt": "^5.1.1",
+    "better-sqlite3": "^12.2.0",
     "chart.js": "^4.5.0",
     "dotenv": "^16.3.1",
     "ejs": "^3.1.10",
@@ -82,6 +83,7 @@
     "koa-views": "^8.1.0",
     "koa2-swagger-ui": "^5.12.0",
     "node-schedule": "^2.1.1",
+    "rate-limiter-flexible": "^7.3.1",
     "sequelize": "^6.35.2",
     "socket.io": "^4.8.1",
     "sqlite3": "^5.1.6",
@@ -93,6 +95,7 @@
   },
   "devDependencies": {
     "@types/bcrypt": "^5.0.2",
+    "@types/better-sqlite3": "^7.6.13",
     "@types/ejs": "^3.1.5",
     "@types/jest": "^29.5.8",
     "@types/jsonwebtoken": "^9.0.10",

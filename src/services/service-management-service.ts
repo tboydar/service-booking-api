@@ -216,6 +216,41 @@ export class ServiceManagementService {
   }
 
   /**
+   * Restore a soft-deleted service
+   * @param id - Service ID
+   * @returns Promise<ServiceResponse> - Restored service data
+   */
+  async restoreService(id: string): Promise<ServiceResponse> {
+    if (!id || typeof id !== 'string') {
+      throw new Error(
+        'VALIDATION_ERROR: Service ID must be a non-empty string'
+      );
+    }
+
+    // Check if service exists
+    const existingService = await this.serviceRepository.findById(id);
+    if (!existingService) {
+      throw new Error('NOT_FOUND_ERROR: Service not found');
+    }
+
+    // Check if service is actually deleted
+    if (!existingService.isRemove) {
+      throw new Error('VALIDATION_ERROR: Service is not deleted');
+    }
+
+    const restoredService = await this.serviceRepository.restoreById(id);
+    if (!restoredService) {
+      throw new Error('INTERNAL_ERROR: Failed to restore service');
+    }
+
+    return {
+      success: true,
+      data: this.mapServiceToResponse(restoredService),
+      timestamp: new Date().toISOString(),
+    };
+  }
+
+  /**
    * Get all services (including private and removed) - for admin use
    * @returns Promise<ServicesListResponse> - List of all services
    */
