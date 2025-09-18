@@ -124,8 +124,6 @@ flowchart LR
     DB --> Run[啟動服務]
     Run --> Success([成功運行!])
 
-    style Start fill:#e1f5e1
-    style Success fill:#e1f5e1
 ```
 
 ### 詳細步驟
@@ -293,10 +291,6 @@ flowchart LR
     Repositories --> Models
     Models --> Database
 
-    style Routes fill:#e1f5fe
-    style Controllers fill:#fff9c4
-    style Services fill:#f3e5f5
-    style Database fill:#ffebee
 ```
 
 ### 資料庫架構 (ER Diagram)
@@ -460,12 +454,6 @@ flowchart TB
         Performance --> Metrics[指標分析]
     end
 
-    style Admin fill:#e3f2fd
-    style Dashboard fill:#fff9c4
-    style Monitor fill:#e8f5e9
-    style Logs fill:#fce4ec
-    style Scheduler fill:#f3e5f5
-    style Performance fill:#fff3e0
 ```
 
 ### 管理後台特色功能
@@ -564,13 +552,6 @@ flowchart TD
     Health --> Status["GET /<br/>健康狀態"]
     Health --> Version["GET /version<br/>版本資訊"]
 
-    style Register fill:#e8f5e9
-    style Login fill:#e8f5e9
-    style AdminLogin fill:#e1f5fe
-    style AdminDashboard fill:#e1f5fe
-    style Create fill:#fff3e0
-    style Update fill:#fff3e0
-    style Delete fill:#ffebee
 ```
 
 ### JWT 認證流程
@@ -708,12 +689,6 @@ flowchart TD
     Error404 --> ErrorResponse
     Error500 --> ErrorResponse
 
-    style Success fill:#c8e6c9
-    style Error400 fill:#ffecb3
-    style Error401 fill:#ffccbc
-    style Error403 fill:#ffccbc
-    style Error404 fill:#ffe0b2
-    style Error500 fill:#ffcdd2
 ```
 
 ### 錯誤回應格式
@@ -884,9 +859,6 @@ flowchart TB
     Unit --> Integration
     Integration --> E2E
 
-    style E2E fill:#ffcdd2
-    style Integration fill:#fff9c4
-    style Unit fill:#c8e6c9
 ```
 
 ### 測試執行流程
@@ -900,8 +872,6 @@ flowchart LR
     Coverage -->|>80%| Pass[✅ 通過]
     Coverage -->|<80%| Fail[❌ 失敗]
 
-    style Pass fill:#c8e6c9
-    style Fail fill:#ffcdd2
 ```
 
 ### 測試指令
@@ -1036,9 +1006,6 @@ flowchart LR
     Registry --> Deploy
     Deploy --> Health
 
-    style Dev fill:#e3f2fd
-    style Test fill:#fff9c4
-    style Deploy fill:#c8e6c9
 ```
 
 ### GitHub Actions 設定
@@ -1135,9 +1102,6 @@ flowchart TD
     Dev_API --> Stg_API
     Stg_API --> Prod_API
 
-    style Development fill:#e3f2fd
-    style Staging fill:#fff9c4
-    style Production fill:#c8e6c9
 ```
 
 ---
@@ -1502,8 +1466,6 @@ flowchart TD
     NpmInstall --> Solved
     CheckEnv --> Solved
 
-    style Start fill:#ffebee
-    style Solved fill:#c8e6c9
 ```
 
 ### 常見錯誤與解決方案
@@ -1589,9 +1551,6 @@ flowchart LR
     PR --> Review[程式碼審查]
     Review --> Merge[合併到主分支]
 
-    style Fork fill:#e3f2fd
-    style Test fill:#fff9c4
-    style Merge fill:#c8e6c9
 ```
 
 ### 提交規範
@@ -1639,7 +1598,6 @@ flowchart TD
     Revise --> Checks
     Approve --> Merge[合併到主分支]
 
-    style Merge fill:#c8e6c9
 ```
 
 ---

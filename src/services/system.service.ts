@@ -108,7 +108,7 @@ export class SystemService {
         },
         uptime,
         platform: os.platform(),
-        hostname: os.hostname(),
+        hostname: 'localhost', // Hide actual hostname for privacy
         nodeVersion: process.version
       };
     } catch (error) {

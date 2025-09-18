@@ -258,6 +258,16 @@ router.get('/services/new', adminAuthWithRedirect, async (ctx: Context) => {
   }
 });
 
+router.get('/services/edit/:id', adminAuthWithRedirect, async (ctx: Context) => {
+  const filePath = path.join(__dirname, '../../admin/views/service-edit.html');
+  try {
+    ctx.type = 'html';
+    ctx.body = await fs.readFile(filePath, 'utf-8');
+  } catch (error) {
+    ctx.throw(404, 'Edit service page not found');
+  }
+});
+
 // Users management page
 router.get('/users', adminAuthWithRedirect, async (ctx: Context) => {
   const filePath = path.join(__dirname, '../../admin/views/users.html');
