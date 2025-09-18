@@ -14,6 +14,7 @@ import { bookingRoutes } from './routes/booking-routes';
 import koaStatic from 'koa-static';
 import * as path from 'path';
 import { tracingMiddleware, performanceTracingMiddleware } from './middlewares/tracing-middleware';
+import swaggerRoutes from './routes/swagger-routes';
 
 /**
  * Create and configure Koa application
@@ -68,6 +69,10 @@ const createApp = (): Koa => {
 
   // Static files for admin panel
   app.use(koaStatic(path.join(__dirname, '../admin/public')));
+
+  // Swagger API documentation
+  app.use(swaggerRoutes.routes());
+  app.use(swaggerRoutes.allowedMethods());
 
   // Admin routes
   const adminRouter = createAdminRoutes();
