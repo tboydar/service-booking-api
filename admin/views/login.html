@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>管理後台登入 - Service Booking API</title>
+  <link rel="stylesheet" href="/admin/css/admin.css">
+</head>
+<body>
+  <div class="login-container">
+    <form class="login-form" id="loginForm">
+      <h2>🔐 管理後台登入</h2>
+
+      <div id="errorMessage" class="alert alert-danger" style="display: none;"></div>
+
+      <div class="form-group">
+        <label for="email">電子郵件</label>
+        <input
+          type="email"
+          id="email"
+          name="email"
+          class="form-control"
+          placeholder="admin@example.com"
+          required
+          autofocus
+        >
+      </div>
+
+      <div class="form-group">
+        <label for="password">密碼</label>
+        <input
+          type="password"
+          id="password"
+          name="password"
+          class="form-control"
+          placeholder="請輸入密碼"
+          required
+        >
+      </div>
+
+      <div class="form-group">
+        <label>
+          <input type="checkbox" name="remember" id="remember">
+          記住我
+        </label>
+      </div>
+
+      <button type="submit" class="btn btn-primary">
+        登入
+      </button>
+
+      <div class="text-center mt-3">
+        <p class="text-muted">預設管理員帳號：admin@example.com / Admin123!</p>
+      </div>
+    </form>
+  </div>
+
+  <script>
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const errorMessage = document.getElementById('errorMessage');
+      errorMessage.style.display = 'none';
+
+      const formData = new FormData(e.target);
+      const credentials = {
+        email: formData.get('email'),
+        password: formData.get('password')
+      };
+
+      try {
+        const response = await fetch('/admin/login', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(credentials)
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          // Store token in localStorage
+          localStorage.setItem('adminToken', data.data.token);
+
+          // Set cookie for server-side auth
+          document.cookie = `adminToken=${data.data.token}; path=/; max-age=86400`; // 24 hours
+
+          // Remember me
+          if (formData.get('remember')) {
+            localStorage.setItem('adminEmail', credentials.email);
+          } else {
+            localStorage.removeItem('adminEmail');
+          }
+
+          // Redirect to dashboard
+          window.location.href = '/admin/dashboard';
+        } else {
+          errorMessage.textContent = data.error?.message || '登入失敗，請檢查您的憑證';
+          errorMessage.style.display = 'block';
+        }
+      } catch (error) {
+        errorMessage.textContent = '登入失敗，請稍後再試';
+        errorMessage.style.display = 'block';
+        console.error('Login error:', error);
+      }
+    });
+
+    // Auto-fill remembered email
+    document.addEventListener('DOMContentLoaded', () => {
+      const rememberedEmail = localStorage.getItem('adminEmail');
+      if (rememberedEmail) {
+        document.getElementById('email').value = rememberedEmail;
+        document.getElementById('remember').checked = true;
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>排程管理 - Service Booking API</title>
+  <link rel="stylesheet" href="/admin/css/admin.css">
+</head>
+<body>
+  <div class="admin-wrapper">
+    <!-- Sidebar -->
+    <nav class="sidebar">
+      <div class="sidebar-header">
+        <h3>🎯 管理後台</h3>
+      </div>
+      <ul class="sidebar-menu">
+        <li><a href="/admin/dashboard">📊 儀表板</a></li>
+        <li><a href="/admin/system">💻 系統監控</a></li>
+        <li><a href="/admin/logs">📝 日誌管理</a></li>
+        <li><a href="/admin/scheduler" class="active">⏰ 排程管理</a></li>
+        <li><a href="/admin/k6-test">🚀 K6 效能測試</a></li>
+        <li><a href="/admin/services">📦 服務管理</a></li>
+        <li><a href="/admin/users">👥 用戶管理</a></li>
+        <li><a href="#" id="logoutBtn">🚪 登出</a></li>
+      </ul>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <div class="header">
+        <h1>⏰ 排程管理</h1>
+        <button id="addTaskBtn" class="btn btn-primary">➕ 新增排程任務</button>
+      </div>
+
+      <!-- Task Statistics -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <h3>📊 總任務數</h3>
+          <p class="stat-value" id="totalTasks">0</p>
+        </div>
+        <div class="stat-card success">
+          <h3>✅ 執行中</h3>
+          <p class="stat-value" id="runningTasks">0</p>
+        </div>
+        <div class="stat-card warning">
+          <h3>⏸️ 已暫停</h3>
+          <p class="stat-value" id="pausedTasks">0</p>
+        </div>
+        <div class="stat-card">
+          <h3>📅 下次執行</h3>
+          <p class="stat-value" id="nextExecution">-</p>
+        </div>
+      </div>
+
+      <!-- Tasks List -->
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title">📋 排程任務列表</h2>
+        </div>
+        <div class="card-body">
+          <div class="tasks-container" id="tasksContainer">
+            <p>載入排程任務中...</p>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Add/Edit Task Modal -->
+  <div id="taskModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 id="modalTitle">新增排程任務</h2>
+        <span class="close" onclick="closeModal()">&times;</span>
+      </div>
+      <div class="modal-body">
+        <form id="taskForm">
+          <div class="form-group">
+            <label for="taskName">任務名稱</label>
+            <input type="text" id="taskName" class="form-control" required>
+          </div>
+          <div class="form-group">
+            <label for="taskType">任務類型</label>
+            <select id="taskType" class="form-control" required>
+              <option value="backup">資料庫備份</option>
+              <option value="cleanup">日誌清理</option>
+              <option value="report">報告生成</option>
+              <option value="sync">資料同步</option>
+              <option value="custom">自訂任務</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="cronExpression">Cron 表達式</label>
+            <input type="text" id="cronExpression" class="form-control" placeholder="例如: */5 * * * * (每5分鐘)" required>
+            <small class="help-text">
+              格式: 秒 分 時 日 月 星期<br>
+              範例:
+              - */30 * * * * * (每30秒)
+              - 0 0 * * * * (每小時整點)
+              - 0 0 2 * * * (每天凌晨2點)
+              - 0 0 9 * * 1-5 (週一至週五早上9點)
+            </small>
+          </div>
+          <div class="form-group">
+            <label for="taskDescription">任務描述</label>
+            <textarea id="taskDescription" class="form-control" rows="3"></textarea>
+          </div>
+          <div class="form-group">
+            <label for="taskEnabled">狀態</label>
+            <select id="taskEnabled" class="form-control">
+              <option value="true">啟用</option>
+              <option value="false">停用</option>
+            </select>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" onclick="closeModal()">取消</button>
+        <button type="button" class="btn btn-primary" onclick="saveTask()">儲存</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="/admin/js/admin.js"></script>
+  <script>
+    let tasks = [];
+    let editingTaskId = null;
+
+    // Load tasks
+    async function loadTasks() {
+      try {
+        const token = localStorage.getItem('adminToken');
+        const response = await fetch('/admin/api/scheduler', {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to load tasks');
+        }
+
+        const result = await response.json();
+        if (result.success) {
+          tasks = result.data.tasks || [];
+          displayTasks();
+          updateStatistics();
+        }
+      } catch (error) {
+        console.error('Error loading tasks:', error);
+        showError('無法載入排程任務');
+      }
+    }
+
+    // Display tasks
+    function displayTasks() {
+      const container = document.getElementById('tasksContainer');
+
+      if (tasks.length === 0) {
+        container.innerHTML = '<p class="no-tasks">目前沒有排程任務</p>';
+        return;
+      }
+
+      container.innerHTML = tasks.map(task => `
+        <div class="task-card ${task.enabled ? 'active' : 'paused'}">
+          <div class="task-header">
+            <h3>${escapeHtml(task.name)}</h3>
+            <div class="task-actions">
+              <button class="btn btn-sm" onclick="toggleTask('${task.id}', ${!task.enabled})">
+                ${task.enabled ? '⏸️ 暫停' : '▶️ 啟用'}
+              </button>
+              <button class="btn btn-sm" onclick="editTask('${task.id}')">✏️ 編輯</button>
+              <button class="btn btn-sm btn-danger" onclick="deleteTask('${task.id}')">🗑️ 刪除</button>
+            </div>
+          </div>
+          <div class="task-body">
+            <p><strong>類型:</strong> ${getTaskTypeLabel(task.type)}</p>
+            <p><strong>Cron:</strong> <code>${task.cron}</code></p>
+            <p><strong>描述:</strong> ${escapeHtml(task.description || '無描述')}</p>
+            <p><strong>狀態:</strong>
+              <span class="badge ${task.enabled ? 'badge-success' : 'badge-warning'}">
+                ${task.enabled ? '執行中' : '已暫停'}
+              </span>
+            </p>
+            <p><strong>下次執行:</strong> ${task.nextExecution ? new Date(task.nextExecution).toLocaleString('zh-TW') : '未排程'}</p>
+            <p><strong>上次執行:</strong> ${task.lastExecution ? new Date(task.lastExecution).toLocaleString('zh-TW') : '從未執行'}</p>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // Update statistics
+    function updateStatistics() {
+      const stats = {
+        total: tasks.length,
+        running: tasks.filter(t => t.enabled).length,
+        paused: tasks.filter(t => !t.enabled).length
+      };
+
+      document.getElementById('totalTasks').textContent = stats.total;
+      document.getElementById('runningTasks').textContent = stats.running;
+      document.getElementById('pausedTasks').textContent = stats.paused;
+
+      // Find next execution
+      const nextTask = tasks
+        .filter(t => t.enabled && t.nextExecution)
+        .sort((a, b) => new Date(a.nextExecution) - new Date(b.nextExecution))[0];
+
+      if (nextTask) {
+        const nextTime = new Date(nextTask.nextExecution);
+        document.getElementById('nextExecution').textContent =
+          `${nextTime.toLocaleTimeString('zh-TW')}`;
+      } else {
+        document.getElementById('nextExecution').textContent = '-';
+      }
+    }
+
+    // Get task type label
+    function getTaskTypeLabel(type) {
+      const labels = {
+        backup: '資料庫備份',
+        cleanup: '日誌清理',
+        report: '報告生成',
+        sync: '資料同步',
+        custom: '自訂任務'
+      };
+      return labels[type] || type;
+    }
+
+    // Show add task modal
+    function showAddTaskModal() {
+      editingTaskId = null;
+      document.getElementById('modalTitle').textContent = '新增排程任務';
+      document.getElementById('taskForm').reset();
+      document.getElementById('taskModal').style.display = 'block';
+    }
+
+    // Edit task
+    function editTask(taskId) {
+      const task = tasks.find(t => t.id === taskId);
+      if (!task) return;
+
+      editingTaskId = taskId;
+      document.getElementById('modalTitle').textContent = '編輯排程任務';
+      document.getElementById('taskName').value = task.name;
+      document.getElementById('taskType').value = task.type;
+      document.getElementById('cronExpression').value = task.cron;
+      document.getElementById('taskDescription').value = task.description || '';
+      document.getElementById('taskEnabled').value = task.enabled.toString();
+      document.getElementById('taskModal').style.display = 'block';
+    }
+
+    // Save task
+    async function saveTask() {
+      const taskData = {
+        name: document.getElementById('taskName').value,
+        type: document.getElementById('taskType').value,
+        cron: document.getElementById('cronExpression').value,
+        description: document.getElementById('taskDescription').value,
+        enabled: document.getElementById('taskEnabled').value === 'true'
+      };
+
+      try {
+        const token = localStorage.getItem('adminToken');
+        const url = editingTaskId
+          ? `/admin/api/scheduler/${editingTaskId}`
+          : '/admin/api/scheduler';
+
+        const method = editingTaskId ? 'PUT' : 'POST';
+
+        const response = await fetch(url, {
+          method,
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(taskData)
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to save task');
+        }
+
+        closeModal();
+        loadTasks();
+        alert('排程任務已儲存');
+      } catch (error) {
+        console.error('Error saving task:', error);
+        showError('無法儲存排程任務');
+      }
+    }
+
+    // Toggle task
+    async function toggleTask(taskId, enabled) {
+      try {
+        const token = localStorage.getItem('adminToken');
+        const task = tasks.find(t => t.id === taskId);
+
+        const response = await fetch(`/admin/api/scheduler/${taskId}`, {
+          method: 'PUT',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ ...task, enabled })
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to toggle task');
+        }
+
+        loadTasks();
+      } catch (error) {
+        console.error('Error toggling task:', error);
+        showError('無法更新任務狀態');
+      }
+    }
+
+    // Delete task
+    async function deleteTask(taskId) {
+      if (!confirm('確定要刪除此排程任務嗎？')) {
+        return;
+      }
+
+      try {
+        const token = localStorage.getItem('adminToken');
+        const response = await fetch(`/admin/api/scheduler/${taskId}`, {
+          method: 'DELETE',
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to delete task');
+        }
+
+        loadTasks();
+        alert('排程任務已刪除');
+      } catch (error) {
+        console.error('Error deleting task:', error);
+        showError('無法刪除排程任務');
+      }
+    }
+
+    // Close modal
+    function closeModal() {
+      document.getElementById('taskModal').style.display = 'none';
+      editingTaskId = null;
+    }
+
+    // Escape HTML
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    // Show error
+    function showError(message) {
+      alert(message);
+    }
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', () => {
+      loadTasks();
+
+      // Event listeners
+      document.getElementById('addTaskBtn').addEventListener('click', showAddTaskModal);
+
+      // Auto refresh every 30 seconds
+      setInterval(loadTasks, 30000);
+
+      // Initialize admin dashboard
+      if (typeof AdminDashboard !== 'undefined') {
+        AdminDashboard.init();
+      }
+    });
+
+    // Close modal when clicking outside
+    window.onclick = function(event) {
+      const modal = document.getElementById('taskModal');
+      if (event.target === modal) {
+        closeModal();
+      }
+    }
+  </script>
+
+  <style>
+    .tasks-container {
+      display: grid;
+      gap: 20px;
+    }
+
+    .task-card {
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      padding: 20px;
+      background: white;
+    }
+
+    .task-card.active {
+      border-left: 4px solid #10b981;
+    }
+
+    .task-card.paused {
+      border-left: 4px solid #f59e0b;
+      opacity: 0.8;
+    }
+
+    .task-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+      padding-bottom: 15px;
+      border-bottom: 1px solid #e5e7eb;
+    }
+
+    .task-actions {
+      display: flex;
+      gap: 10px;
+    }
+
+    .task-body p {
+      margin: 8px 0;
+      color: #6b7280;
+    }
+
+    .task-body strong {
+      color: #374151;
+    }
+
+    .task-body code {
+      background: #f3f4f6;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-family: monospace;
+    }
+
+    .no-tasks {
+      text-align: center;
+      color: #6b7280;
+      padding: 40px;
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0,0,0,0.5);
+    }
+
+    .modal-content {
+      background-color: white;
+      margin: 5% auto;
+      padding: 0;
+      border-radius: 8px;
+      width: 90%;
+      max-width: 600px;
+    }
+
+    .modal-header {
+      padding: 20px;
+      border-bottom: 1px solid #e5e7eb;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .modal-body {
+      padding: 20px;
+    }
+
+    .modal-footer {
+      padding: 20px;
+      border-top: 1px solid #e5e7eb;
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+    }
+
+    .close {
+      font-size: 28px;
+      font-weight: bold;
+      line-height: 20px;
+      cursor: pointer;
+      color: #6b7280;
+    }
+
+    .close:hover {
+      color: #374151;
+    }
+
+    .help-text {
+      display: block;
+      margin-top: 5px;
+      color: #6b7280;
+      font-size: 12px;
+    }
+
+    .badge-success {
+      background: #10b981;
+      color: white;
+    }
+
+    .badge-warning {
+      background: #f59e0b;
+      color: white;
+    }
+
+    .stat-card.success {
+      background: #d1fae5;
+    }
+
+    .stat-card.warning {
+      background: #fef3c7;
+    }
+  </style>
+</body>
+</html>

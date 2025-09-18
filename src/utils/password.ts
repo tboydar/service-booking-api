@@ -68,3 +68,9 @@ export class PasswordUtils {
     return password.length >= 6;
   }
 }
+
+// Export convenience functions
+export const hashPassword = PasswordUtils.hashPassword;
+export const verifyPassword = PasswordUtils.verifyPassword;
+export const validatePassword = PasswordUtils.verifyPassword; // Alias for compatibility
+export const isValidPassword = PasswordUtils.isValidPassword;

@@ -52,7 +52,10 @@ export class AuthService {
       name: name.trim(),
     });
 
-    // Return user response without password
+    // Generate JWT token for the new user
+    const token = JWTUtils.generateToken(newUser.id, newUser.email);
+
+    // Return user response without password but with token
     const userResponse: UserResponseAttributes = {
       id: newUser.id,
       email: newUser.email,
@@ -63,7 +66,10 @@ export class AuthService {
 
     return {
       success: true,
-      data: userResponse,
+      data: {
+        user: userResponse,
+        token,
+      },
       timestamp: new Date().toISOString(),
     };
   }

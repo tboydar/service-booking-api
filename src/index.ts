@@ -4,7 +4,11 @@ import { config } from './config/environment';
 import { initializeDatabase } from './database/init';
 import { errorHandler } from './middlewares/error-handler';
 import { getCorsMiddleware } from './middlewares/cors';
+import { requestStatsMiddleware } from './middlewares/request-stats';
 import { AppRoutes } from './routes/app-routes';
+import { createAdminRoutes } from './routes/admin-routes';
+import koaStatic from 'koa-static';
+import * as path from 'path';
 
 /**
  * Create and configure Koa application
@@ -24,19 +28,15 @@ const createApp = (): Koa => {
       enableTypes: ['json'],
       jsonLimit: '10mb',
       strict: true,
-      onerror: (_err, ctx) => {
+      onerror: (err, ctx) => {
+        console.error('Body parser error:', err);
         ctx.throw(400, 'Invalid JSON format');
       },
     })
   );
 
-  // Request logging middleware
-  app.use(async (ctx, next) => {
-    const start = Date.now();
-    await next();
-    const ms = Date.now() - start;
-    console.log(`${ctx.method} ${ctx.url} - ${ctx.status} - ${ms}ms`);
-  });
+  // Request statistics middleware
+  app.use(requestStatsMiddleware);
 
   // Health check endpoint
   app.use(async (ctx, next) => {
@@ -56,6 +56,14 @@ const createApp = (): Koa => {
     }
     await next();
   });
+
+  // Static files for admin panel
+  app.use(koaStatic(path.join(__dirname, '../admin/public')));
+
+  // Admin routes
+  const adminRouter = createAdminRoutes();
+  app.use(adminRouter.routes());
+  app.use(adminRouter.allowedMethods());
 
   // API routes
   const appRoutes = new AppRoutes();
@@ -93,6 +101,7 @@ const startServer = async (): Promise<void> => {
       console.log(`🚀 Server running on port ${config.PORT}`);
       console.log(`📊 Environment: ${config.NODE_ENV}`);
       console.log(`🏥 Health check: http://localhost:${config.PORT}/health`);
+      console.log(`🖥️  Admin Panel: http://localhost:${config.PORT}/admin`);
       console.log(`📚 API endpoints:`);
       console.log(`   POST /auth/register - User registration`);
       console.log(`   POST /auth/login - User login`);
@@ -101,6 +110,12 @@ const startServer = async (): Promise<void> => {
       console.log(`   POST /services - Create service (auth required)`);
       console.log(`   PUT  /services/:id - Update service (auth required)`);
       console.log(`   DELETE /services/:id - Delete service (auth required)`);
+      console.log(`🔐 Admin endpoints:`);
+      console.log(`   POST /admin/login - Admin login`);
+      console.log(`   GET  /admin/dashboard - Admin dashboard`);
+      console.log(`   GET  /admin/api/system - System information`);
+      console.log(`   GET  /admin/api/logs - View logs`);
+      console.log(`   GET  /admin/api/scheduler - Scheduler tasks`);
     });
 
     // Graceful shutdown
