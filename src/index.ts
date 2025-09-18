@@ -74,6 +74,9 @@ const createApp = (): Koa => {
   // Static files for admin panel
   app.use(koaStatic(path.join(__dirname, '../admin/public')));
 
+  // Static files for demo pages
+  app.use(koaStatic(path.join(__dirname, '../public')));
+
   // Swagger API documentation
   app.use(swaggerRoutes.routes());
   app.use(swaggerRoutes.allowedMethods());

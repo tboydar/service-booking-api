@@ -3,6 +3,7 @@ import { AuthController } from '../controllers/auth-controller';
 import { validateBody } from '../middlewares/validation';
 import { registerSchema, loginSchema } from '../validation/auth.schemas';
 import { strictRateLimit } from '../middlewares/rate-limiter';
+import { optionalRecaptchaMiddleware } from '../middlewares/recaptcha.middleware';
 
 /**
  * Authentication routes
@@ -14,15 +15,15 @@ export const createAuthRoutes = (authController?: AuthController): any => {
 
   /**
    * POST /auth/register
-   * Register a new user
+   * Register a new user with reCAPTCHA protection
    */
-  router.post('/register', strictRateLimit, validateBody(registerSchema), controller.register);
+  router.post('/register', strictRateLimit, optionalRecaptchaMiddleware, validateBody(registerSchema), controller.register);
 
   /**
    * POST /auth/login
-   * Login user
+   * Login user with reCAPTCHA protection
    */
-  router.post('/login', strictRateLimit, validateBody(loginSchema), controller.login);
+  router.post('/login', strictRateLimit, optionalRecaptchaMiddleware, validateBody(loginSchema), controller.login);
 
   return router;
 };

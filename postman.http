@@ -1,0 +1,256 @@
+# VSCode REST Client 測試檔案
+# https://github.com/Huachao/vscode-restclient
+@baseUrl = http://localhost:3000
+@password = SecurePass123!
+### Register User (creates fresh credentials)
+# @name registerUser
+POST {{baseUrl}}/auth/register
+Content-Type: application/json
+
+{
+  "email": "user{{$timestamp}}@example.com",
+  "password": "{{password}}",
+  "name": "Test User {{$timestamp}}"
+}
+
+### Extract token and userId from registerUser response
+# 取消下面兩行的註解來儲存 token 和 userId
+# @token = {{registerUser.response.body.data.token}}
+# @userId = {{registerUser.response.body.data.user.id}}
+# @registeredEmail = {{registerUser.response.body.data.user.email}}
+
+### 選項 1: Login With Just Registered User (必須先執行上面的 registerUser)
+# @name loginRegisteredUser
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "{{registerUser.response.body.data.user.email}}",
+  "password": "{{password}}"
+}
+
+### 選項 2: Login With Fixed Test Account (獨立測試用)
+# @name loginUser
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "admin@example.com",
+  "password": "Admin123!"
+}
+
+### Extract token from loginUser response (uncomment to use)
+# @token = {{loginUser.response.body.data.token}}
+# @userId = {{loginUser.response.body.data.user.id}}
+
+### Public Service List
+# @name listServices
+GET {{baseUrl}}/services?page=1&limit=10&sort=order&order=asc
+
+### Extract serviceId from listServices response (uncomment to use)
+# @serviceId = {{listServices.response.body.data[0].id}}
+
+### 選項 1: Public Service Detail (使用 listServices 的第一個服務)
+# @name getServiceDynamic
+GET {{baseUrl}}/services/{{listServices.response.body.data[0].id}}
+
+### 選項 2: Public Service Detail (使用固定 ID 測試)
+# @name getService
+GET {{baseUrl}}/services/8e26d37d-975d-4872-8141-2929d169c2e1
+
+### Create Service (使用 registerUser 或 loginUser 的 token)
+# @name createService
+POST {{baseUrl}}/services
+Content-Type: application/json
+Authorization: Bearer {{registerUser.response.body.data.token}}
+
+{
+  "name": "{{$guid}} 服務",
+  "description": "這是一個示範服務，會在建立後自動保存 ID。",
+  "price": 60000,
+  "showTime": 120,
+  "order": 1,
+  "isPublic": true
+}
+
+
+
+### Extract newServiceId from createService response (uncomment to use)
+# @newServiceId = {{createService.response.body.data.id}}
+
+
+###
+# @name getService
+GET {{baseUrl}}/services/{{createService.response.body.data.id}}
+
+###
+
+### Update Service (使用 createService 的 ID 和 token)
+# @name updateService
+PUT {{baseUrl}}/services/{{createService.response.body.data.id}}
+Content-Type: application/json
+Authorization: Bearer {{registerUser.response.body.data.token}}
+
+{
+  "name": "更新後的服務名稱",
+  "description": "這是更新後的服務描述，提供更好的功能和體驗。",
+  "price": 75000,
+  "showTime": 150,
+  "order": 2,
+  "isPublic": true
+}
+
+### Delete Service (使用 createService 的 ID 和 token)
+# @name deleteService
+# 註：這是軟刪除，可以使用下方的 restore 端點還原
+DELETE {{baseUrl}}/services/{{createService.response.body.data.id}}
+Authorization: Bearer {{registerUser.response.body.data.token}}
+
+### Restore Deleted Service (還原剛刪除的服務)
+# @name restoreService
+PUT {{baseUrl}}/services/{{createService.response.body.data.id}}/restore
+Authorization: Bearer {{registerUser.response.body.data.token}}
+
+### Health Check (no auth required)
+# @name healthCheck
+GET {{baseUrl}}/health
+
+###
+# ========================================
+# Rate Limit 測試區塊
+# ========================================
+
+### 測試一般限流 (100 請求/分鐘)
+# 連續發送多個請求來測試一般限流
+# @name testGeneralRateLimit
+GET {{baseUrl}}/services
+
+### 檢查 Rate Limit 標頭
+# 回應應該包含以下標頭：
+# X-RateLimit-Limit: 100
+# X-RateLimit-Remaining: 剩餘請求數
+# X-RateLimit-Reset: 重置時間
+
+### 測試嚴格限流 - 登入端點 (5 請求/分鐘)
+# 連續發送多個登入請求來測試嚴格限流
+# @name testStrictRateLimitLogin
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "ratelimit-test@example.com",
+  "password": "TestPass123!"
+}
+
+### 測試嚴格限流 - 註冊端點 (5 請求/分鐘)
+# @name testStrictRateLimitRegister
+POST {{baseUrl}}/auth/register
+Content-Type: application/json
+
+{
+  "email": "ratelimit{{$timestamp}}@example.com",
+  "password": "TestPass123!",
+  "name": "Rate Limit Test {{$timestamp}}"
+}
+
+### 測試 API 限流 (60 請求/分鐘)
+# @name testApiRateLimit
+GET {{baseUrl}}/services/{{serviceId}}
+
+### 模擬超過限制的情況
+# 執行此請求多次直到收到 429 錯誤
+# 預期回應：
+# HTTP/1.1 429 Too Many Requests
+# {
+#   "success": false,
+#   "error": {
+#     "code": "RATE_LIMIT_EXCEEDED",
+#     "message": "Too many requests, please try again later",
+#     "details": { "retryAfter": 60 }
+#   }
+# }
+
+###
+# ========================================
+# Google reCAPTCHA v2 測試區塊
+# ========================================
+# 測試金鑰：
+# Site Key: 6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI
+# Secret Key: 6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe
+#
+# 注意：這些是 Google 提供的測試金鑰，永遠會通過驗證
+# ========================================
+
+### 註冊 - 包含 reCAPTCHA v2 token
+# @name registerWithRecaptcha
+POST {{baseUrl}}/auth/register
+Content-Type: application/json
+
+{
+  "email": "recaptcha{{$timestamp}}@example.com",
+  "password": "{{password}}",
+  "name": "reCAPTCHA Test User {{$timestamp}}",
+  "g-recaptcha-response": "test-token-from-google"
+}
+
+### 註冊 - 缺少 reCAPTCHA token (會失敗)
+# @name registerWithoutRecaptcha
+POST {{baseUrl}}/auth/register
+Content-Type: application/json
+
+{
+  "email": "norecaptcha{{$timestamp}}@example.com",
+  "password": "{{password}}",
+  "name": "No reCAPTCHA User {{$timestamp}}"
+}
+
+### 登入 - 包含 reCAPTCHA v2 token
+# @name loginWithRecaptcha
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "admin@example.com",
+  "password": "Admin123!",
+  "g-recaptcha-response": "test-token-from-google"
+}
+
+### 登入 - 缺少 reCAPTCHA token (選擇性，可能成功)
+# @name loginWithoutRecaptcha
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "admin@example.com",
+  "password": "Admin123!"
+}
+
+### 測試無效的 reCAPTCHA token
+# @name loginWithInvalidRecaptcha
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "admin@example.com",
+  "password": "Admin123!",
+  "g-recaptcha-response": "invalid-token-12345"
+}
+
+###
+# ========================================
+# Demo 頁面測試 (在瀏覽器中開啟)
+# ========================================
+#
+# 1. Demo 首頁：
+#    http://localhost:3000/demo/
+#
+# 2. 註冊展示頁面：
+#    http://localhost:3000/demo/register.html
+#
+# 3. 登入展示頁面：
+#    http://localhost:3000/demo/login.html
+#
+# 4. API 測試工具：
+#    http://localhost:3000/demo/api-test.html
+#
+# ========================================

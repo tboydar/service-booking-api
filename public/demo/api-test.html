@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>API 測試工具 - Google reCAPTCHA v2</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet">
+  <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+  <style>
+    body {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      font-family: 'Microsoft JhengHei', 'Segoe UI', sans-serif;
+      padding: 40px 20px;
+    }
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    .page-header {
+      text-align: center;
+      color: white;
+      margin-bottom: 40px;
+    }
+    .page-header h1 {
+      font-size: 36px;
+      font-weight: bold;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    }
+    .test-container {
+      background: white;
+      border-radius: 20px;
+      padding: 30px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      margin-bottom: 30px;
+    }
+    .nav-tabs .nav-link {
+      color: #667eea;
+      font-weight: bold;
+    }
+    .nav-tabs .nav-link.active {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border-color: #667eea;
+    }
+    .endpoint-section {
+      background: #f8f9fa;
+      border-radius: 10px;
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+    .endpoint-title {
+      color: #333;
+      font-size: 18px;
+      font-weight: bold;
+      margin-bottom: 15px;
+    }
+    .code-block {
+      background: #2d2d2d;
+      color: #f8f8f2;
+      border-radius: 8px;
+      padding: 15px;
+      font-family: 'Courier New', monospace;
+      font-size: 14px;
+      overflow-x: auto;
+      margin: 10px 0;
+    }
+    .btn-test {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      padding: 10px 30px;
+      border-radius: 50px;
+      font-weight: bold;
+      transition: transform 0.3s;
+    }
+    .btn-test:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+      color: white;
+    }
+    .response-viewer {
+      background: #1e1e1e;
+      color: #d4d4d4;
+      border-radius: 8px;
+      padding: 20px;
+      margin-top: 20px;
+      max-height: 400px;
+      overflow-y: auto;
+      font-family: 'Courier New', monospace;
+      font-size: 13px;
+    }
+    .status-badge {
+      padding: 5px 15px;
+      border-radius: 20px;
+      font-size: 14px;
+      font-weight: bold;
+    }
+    .status-success {
+      background: #28a745;
+      color: white;
+    }
+    .status-error {
+      background: #dc3545;
+      color: white;
+    }
+    .g-recaptcha {
+      margin: 20px 0;
+    }
+    .test-keys {
+      background: #e8f4f8;
+      border-radius: 10px;
+      padding: 15px;
+      margin-bottom: 20px;
+      border: 1px solid #0d6efd;
+    }
+    .test-keys h6 {
+      color: #0d6efd;
+      margin-bottom: 10px;
+    }
+    .copy-btn {
+      cursor: pointer;
+      padding: 4px 10px;
+      border-radius: 4px;
+      background: #667eea;
+      color: white;
+      border: none;
+      font-size: 12px;
+      margin-left: 10px;
+    }
+    .copy-btn:hover {
+      background: #764ba2;
+    }
+    pre {
+      margin: 0;
+    }
+    .json-key { color: #9cdcfe; }
+    .json-string { color: #ce9178; }
+    .json-number { color: #b5cea8; }
+    .json-boolean { color: #569cd6; }
+    .json-null { color: #569cd6; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="page-header">
+      <h1>🔧 API 測試工具 - reCAPTCHA v2 整合</h1>
+      <p>測試 API 端點的 reCAPTCHA 驗證功能</p>
+    </div>
+
+    <div class="test-container">
+      <div class="test-keys">
+        <h6>📋 測試金鑰資訊</h6>
+        <div class="mb-2">
+          <small>
+            Site Key: <code>6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI</code>
+            <button class="copy-btn" onclick="copyToClipboard('6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI')">複製</button>
+          </small>
+        </div>
+        <div>
+          <small>
+            Secret Key: <code>6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe</code>
+            <button class="copy-btn" onclick="copyToClipboard('6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe')">複製</button>
+          </small>
+        </div>
+      </div>
+
+      <ul class="nav nav-tabs mb-4" role="tablist">
+        <li class="nav-item" role="presentation">
+          <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#register-test" type="button">
+            註冊測試
+          </button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button class="nav-link" data-bs-toggle="tab" data-bs-target="#login-test" type="button">
+            登入測試
+          </button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button class="nav-link" data-bs-toggle="tab" data-bs-target="#postman-test" type="button">
+            Postman 整合
+          </button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button class="nav-link" data-bs-toggle="tab" data-bs-target="#curl-test" type="button">
+            cURL 範例
+          </button>
+        </li>
+      </ul>
+
+      <div class="tab-content">
+        <!-- 註冊測試 -->
+        <div class="tab-pane fade show active" id="register-test" role="tabpanel">
+          <div class="endpoint-section">
+            <div class="endpoint-title">POST /auth/register</div>
+
+            <div class="row">
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <label class="form-label">電子郵件</label>
+                  <input type="email" class="form-control" id="registerEmail"
+                         value="test@example.com">
+                </div>
+                <div class="mb-3">
+                  <label class="form-label">密碼</label>
+                  <input type="password" class="form-control" id="registerPassword"
+                         value="Test123!">
+                </div>
+                <div class="mb-3">
+                  <label class="form-label">姓名</label>
+                  <input type="text" class="form-control" id="registerName"
+                         value="Test User">
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="g-recaptcha"
+                     data-sitekey="6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI"
+                     data-callback="onRegisterRecaptcha"
+                     id="register-recaptcha">
+                </div>
+                <button class="btn btn-test mt-3" onclick="testRegister()">
+                  發送註冊請求
+                </button>
+                <button class="btn btn-secondary mt-3 ms-2" onclick="testRegisterWithoutCaptcha()">
+                  不帶 reCAPTCHA 測試
+                </button>
+              </div>
+            </div>
+
+            <div class="response-viewer" id="registerResponse" style="display: none;">
+              <pre></pre>
+            </div>
+          </div>
+        </div>
+
+        <!-- 登入測試 -->
+        <div class="tab-pane fade" id="login-test" role="tabpanel">
+          <div class="endpoint-section">
+            <div class="endpoint-title">POST /auth/login</div>
+
+            <div class="row">
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <label class="form-label">電子郵件</label>
+                  <input type="email" class="form-control" id="loginEmail"
+                         value="admin@example.com">
+                </div>
+                <div class="mb-3">
+                  <label class="form-label">密碼</label>
+                  <input type="password" class="form-control" id="loginPassword"
+                         value="Admin123!">
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="g-recaptcha"
+                     data-sitekey="6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI"
+                     data-callback="onLoginRecaptcha"
+                     id="login-recaptcha">
+                </div>
+                <button class="btn btn-test mt-3" onclick="testLogin()">
+                  發送登入請求
+                </button>
+                <button class="btn btn-secondary mt-3 ms-2" onclick="testLoginWithoutCaptcha()">
+                  不帶 reCAPTCHA 測試
+                </button>
+              </div>
+            </div>
+
+            <div class="response-viewer" id="loginResponse" style="display: none;">
+              <pre></pre>
+            </div>
+          </div>
+        </div>
+
+        <!-- Postman 整合 -->
+        <div class="tab-pane fade" id="postman-test" role="tabpanel">
+          <div class="endpoint-section">
+            <div class="endpoint-title">Postman 整合範例</div>
+
+            <h6 class="mb-3">1. 含 reCAPTCHA 的請求</h6>
+            <div class="code-block">
+POST http://localhost:3000/auth/register
+Content-Type: application/json
+
+{
+  "email": "user@example.com",
+  "password": "SecurePass123!",
+  "name": "Test User",
+  "g-recaptcha-response": "test-token-from-google"
+}
+            </div>
+
+            <h6 class="mb-3 mt-4">2. 環境變數設定</h6>
+            <div class="code-block">
+{
+  "baseUrl": "http://localhost:3000",
+  "recaptchaSiteKey": "6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI",
+  "recaptchaSecretKey": "6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe"
+}
+            </div>
+
+            <h6 class="mb-3 mt-4">3. Pre-request Script (獲取 Token)</h6>
+            <div class="code-block">
+// 注意：實際使用時需要透過前端獲取真實的 reCAPTCHA token
+// 測試環境可使用 "test-token-from-google"
+pm.environment.set("recaptchaToken", "test-token-from-google");
+            </div>
+          </div>
+        </div>
+
+        <!-- cURL 範例 -->
+        <div class="tab-pane fade" id="curl-test" role="tabpanel">
+          <div class="endpoint-section">
+            <div class="endpoint-title">cURL 命令範例</div>
+
+            <h6 class="mb-3">1. 註冊請求</h6>
+            <div class="code-block">
+curl -X POST http://localhost:3000/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "user@example.com",
+    "password": "SecurePass123!",
+    "name": "Test User",
+    "g-recaptcha-response": "test-token-from-google"
+  }'
+            </div>
+
+            <h6 class="mb-3 mt-4">2. 登入請求</h6>
+            <div class="code-block">
+curl -X POST http://localhost:3000/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "admin@example.com",
+    "password": "Admin123!",
+    "g-recaptcha-response": "test-token-from-google"
+  }'
+            </div>
+
+            <h6 class="mb-3 mt-4">3. 測試無效 Token</h6>
+            <div class="code-block">
+curl -X POST http://localhost:3000/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "admin@example.com",
+    "password": "Admin123!",
+    "g-recaptcha-response": "invalid-token-12345"
+  }'
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="text-center mt-4">
+      <a href="/demo/" class="btn btn-light">返回展示首頁</a>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    let registerRecaptchaToken = null;
+    let loginRecaptchaToken = null;
+
+    function onRegisterRecaptcha(token) {
+      registerRecaptchaToken = token;
+      console.log('Register reCAPTCHA token received');
+    }
+
+    function onLoginRecaptcha(token) {
+      loginRecaptchaToken = token;
+      console.log('Login reCAPTCHA token received');
+    }
+
+    function copyToClipboard(text) {
+      navigator.clipboard.writeText(text).then(() => {
+        alert('已複製到剪貼簿');
+      });
+    }
+
+    function formatJson(obj) {
+      return JSON.stringify(obj, null, 2)
+        .replace(/"([^"]+)":/g, '<span class="json-key">"$1"</span>:')
+        .replace(/: "([^"]*)"/g, ': <span class="json-string">"$1"</span>')
+        .replace(/: (\d+)/g, ': <span class="json-number">$1</span>')
+        .replace(/: (true|false)/g, ': <span class="json-boolean">$1</span>')
+        .replace(/: null/g, ': <span class="json-null">null</span>');
+    }
+
+    async function testRegister() {
+      const email = document.getElementById('registerEmail').value;
+      const password = document.getElementById('registerPassword').value;
+      const name = document.getElementById('registerName').value;
+
+      if (!registerRecaptchaToken) {
+        alert('請先完成 reCAPTCHA 驗證');
+        return;
+      }
+
+      const data = {
+        email: email + Date.now() + '@example.com', // 確保唯一
+        password: password,
+        name: name,
+        'g-recaptcha-response': registerRecaptchaToken
+      };
+
+      await makeApiCall('/auth/register', data, 'registerResponse');
+
+      // 重置 reCAPTCHA
+      grecaptcha.reset(0);
+      registerRecaptchaToken = null;
+    }
+
+    async function testRegisterWithoutCaptcha() {
+      const email = document.getElementById('registerEmail').value;
+      const password = document.getElementById('registerPassword').value;
+      const name = document.getElementById('registerName').value;
+
+      const data = {
+        email: email + Date.now() + '@example.com',
+        password: password,
+        name: name
+      };
+
+      await makeApiCall('/auth/register', data, 'registerResponse');
+    }
+
+    async function testLogin() {
+      const email = document.getElementById('loginEmail').value;
+      const password = document.getElementById('loginPassword').value;
+
+      if (!loginRecaptchaToken) {
+        alert('請先完成 reCAPTCHA 驗證');
+        return;
+      }
+
+      const data = {
+        email: email,
+        password: password,
+        'g-recaptcha-response': loginRecaptchaToken
+      };
+
+      await makeApiCall('/auth/login', data, 'loginResponse');
+
+      // 重置 reCAPTCHA
+      grecaptcha.reset(1);
+      loginRecaptchaToken = null;
+    }
+
+    async function testLoginWithoutCaptcha() {
+      const email = document.getElementById('loginEmail').value;
+      const password = document.getElementById('loginPassword').value;
+
+      const data = {
+        email: email,
+        password: password
+      };
+
+      await makeApiCall('/auth/login', data, 'loginResponse');
+    }
+
+    async function makeApiCall(endpoint, data, responseElementId) {
+      const responseElement = document.getElementById(responseElementId);
+      const preElement = responseElement.querySelector('pre');
+
+      responseElement.style.display = 'block';
+      preElement.innerHTML = '<span style="color: #ffd700;">發送請求中...</span>';
+
+      try {
+        const startTime = Date.now();
+        const response = await fetch('http://localhost:3000' + endpoint, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(data)
+        });
+
+        const responseTime = Date.now() - startTime;
+        const result = await response.json();
+
+        const output = {
+          status: response.status,
+          statusText: response.statusText,
+          responseTime: responseTime + 'ms',
+          headers: {
+            'content-type': response.headers.get('content-type'),
+            'x-ratelimit-limit': response.headers.get('x-ratelimit-limit'),
+            'x-ratelimit-remaining': response.headers.get('x-ratelimit-remaining')
+          },
+          body: result
+        };
+
+        preElement.innerHTML = formatJson(output);
+
+        if (response.ok) {
+          preElement.innerHTML = '<span style="color: #4ec9b0;">✓ 成功</span>\n\n' + preElement.innerHTML;
+        } else {
+          preElement.innerHTML = '<span style="color: #f48771;">✗ 失敗</span>\n\n' + preElement.innerHTML;
+        }
+      } catch (error) {
+        preElement.innerHTML = `<span style="color: #f48771;">錯誤: ${error.message}</span>`;
+      }
+    }
+  </script>
+</body>
+</html>

@@ -21,6 +21,10 @@ interface EnvironmentConfig {
   RATE_LIMIT_STRICT_POINTS: number;
   RATE_LIMIT_API_POINTS: number;
   RATE_LIMIT_DURATION: number;
+  RECAPTCHA_ENABLED: boolean;
+  RECAPTCHA_SITE_KEY: string;
+  RECAPTCHA_SECRET_KEY: string;
+  RECAPTCHA_VERIFY_URL: string;
 }
 
 const getEnvVar = (key: string, defaultValue?: string): string => {
@@ -69,6 +73,10 @@ export const config: EnvironmentConfig = {
   RATE_LIMIT_STRICT_POINTS: getEnvNumber('RATE_LIMIT_STRICT_POINTS', 5),
   RATE_LIMIT_API_POINTS: getEnvNumber('RATE_LIMIT_API_POINTS', 60),
   RATE_LIMIT_DURATION: getEnvNumber('RATE_LIMIT_DURATION', 60),
+  RECAPTCHA_ENABLED: getEnvBoolean('RECAPTCHA_ENABLED', true),
+  RECAPTCHA_SITE_KEY: getEnvVar('RECAPTCHA_SITE_KEY', '6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI'),
+  RECAPTCHA_SECRET_KEY: getEnvVar('RECAPTCHA_SECRET_KEY', '6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe'),
+  RECAPTCHA_VERIFY_URL: getEnvVar('RECAPTCHA_VERIFY_URL', 'https://www.google.com/recaptcha/api/siteverify'),
 };
 
 // Export as environment for easier access
