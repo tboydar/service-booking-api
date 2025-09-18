@@ -47,6 +47,14 @@ test-results/
 
 .history
 
+# Tool and development directories
+.kiro/
+.claude/
+.cursor/
+.playwright-mcp/
+.serena/
+worklog/
+
 # PDF documents
 *.pdf
 NodeJS 考題.pdf
