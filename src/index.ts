@@ -1,3 +1,6 @@
+// Initialize OpenTelemetry tracing (must be first)
+import './tracing';
+
 import Koa from 'koa';
 import bodyParser from 'koa-bodyparser';
 import { config } from './config/environment';
@@ -7,8 +10,10 @@ import { getCorsMiddleware } from './middlewares/cors';
 import { requestStatsMiddleware } from './middlewares/request-stats';
 import { AppRoutes } from './routes/app-routes';
 import { createAdminRoutes } from './routes/admin-routes';
+import { bookingRoutes } from './routes/booking-routes';
 import koaStatic from 'koa-static';
 import * as path from 'path';
+import { tracingMiddleware, performanceTracingMiddleware } from './middlewares/tracing-middleware';
 
 /**
  * Create and configure Koa application
@@ -18,6 +23,10 @@ const createApp = (): Koa => {
 
   // Global error handler (must be first)
   app.use(errorHandler);
+
+  // OpenTelemetry tracing middleware (should be early in the chain)
+  app.use(tracingMiddleware());
+  app.use(performanceTracingMiddleware());
 
   // CORS middleware
   app.use(getCorsMiddleware());
@@ -69,6 +78,10 @@ const createApp = (): Koa => {
   const appRoutes = new AppRoutes();
   appRoutes.applyRoutes(app);
 
+  // Booking routes (with external service calls)
+  app.use(bookingRoutes.routes());
+  app.use(bookingRoutes.allowedMethods());
+
   // 404 handler (must be last)
   app.use(async ctx => {
     ctx.status = 404;
@@ -110,6 +123,10 @@ const startServer = async (): Promise<void> => {
       console.log(`   POST /services - Create service (auth required)`);
       console.log(`   PUT  /services/:id - Update service (auth required)`);
       console.log(`   DELETE /services/:id - Delete service (auth required)`);
+      console.log(`💳 Booking endpoints (with payment):`);
+      console.log(`   POST /booking/create - Create booking with payment`);
+      console.log(`   GET  /booking/status/:id - Check booking status`);
+      console.log(`   POST /booking/cancel/:id - Cancel booking with refund`);
       console.log(`🔐 Admin endpoints:`);
       console.log(`   POST /admin/login - Admin login`);
       console.log(`   GET  /admin/dashboard - Admin dashboard`);
