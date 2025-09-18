@@ -23,8 +23,9 @@ module.exports = {
       statements: 80,
     },
   },
-  moduleNameMapping: {
-    '^@/(.*)$': '<rootDir>/src/$1',
-  },
+  modulePathIgnorePatterns: [
+    '<rootDir>/e2e/',
+    '<rootDir>/dist/'
+  ],
   setupFilesAfterEnv: ['<rootDir>/src/test-setup.ts'],
 };

@@ -717,12 +717,15 @@ flowchart LR
     Start([開始]) --> Lint[程式碼檢查]
     Lint --> Unit[單元測試]
     Unit --> Integration[整合測試]
-    Integration --> Coverage{覆蓋率檢查}
-    Coverage -->|>80%| Pass[✅ 通過]
+    Integration --> E2E_Local[本地 E2E 測試]
+    E2E_Local --> Coverage{覆蓋率檢查}
+    Coverage -->|>80%| E2E_Cloud[雲端 E2E 測試<br/>LambdaTest]
     Coverage -->|<80%| Fail[❌ 失敗]
+    E2E_Cloud --> Pass[✅ 通過]
 
     style Pass fill:#c8e6c9
     style Fail fill:#ffcdd2
+    style E2E_Cloud fill:#e3f2fd
 ```
 
 ### 測試指令
@@ -742,6 +745,15 @@ npm test -- --coverage
 
 # 監視模式（開發時使用）
 npm run test:watch
+
+# E2E 測試（本地）
+npm run test:e2e:local
+
+# E2E 測試（LambdaTest 雲端）
+npm run test:e2e:lambdatest
+
+# 執行所有測試（單元 + E2E）
+npm run test:all
 ```
 
 ### 測試範例
@@ -808,6 +820,82 @@ describe('Auth API', () => {
   });
 });
 ```
+
+#### E2E 測試 (雲端真實設備測試)
+
+本專案整合了 **LambdaTest** 雲端測試平台，在真實設備上執行端對端測試。
+
+```typescript
+// auth.e2e.test.ts - 身分驗證 E2E 測試
+import { test, expect } from '@playwright/test';
+import { ApiTestHelper } from '../utils/api-helper';
+
+test.describe('Authentication E2E Tests', () => {
+  let apiHelper: ApiTestHelper;
+
+  test.beforeEach(async ({ request, baseURL }) => {
+    apiHelper = new ApiTestHelper(request, baseURL || 'http://localhost:3000');
+  });
+
+  test('should complete user registration and login flow', async () => {
+    // 生成測試用戶資料
+    const userData = apiHelper.generateTestUser('e2e-test');
+
+    // 步驟 1: 註冊用戶
+    const registerResult = await apiHelper.registerUser(userData);
+    apiHelper.expectSuccessResponse(registerResult.response, 201);
+
+    // 步驟 2: 登入
+    const loginResult = await apiHelper.loginUser({
+      email: userData.email,
+      password: userData.password,
+    });
+    apiHelper.expectSuccessResponse(loginResult.response, 200);
+    expect(loginResult.data?.token).toBeDefined();
+
+    // 步驟 3: 建立服務
+    const serviceData = apiHelper.generateTestService('e2e-service');
+    const serviceResult = await apiHelper.createService(serviceData);
+    apiHelper.expectSuccessResponse(serviceResult.response, 201);
+  });
+});
+```
+
+##### E2E 測試指令
+
+```bash
+# 本地 E2E 測試
+npm run test:e2e:local
+
+# LambdaTest 雲端測試（真實設備）
+npm run test:e2e:lambdatest
+
+# 互動式 UI 模式
+npm run test:e2e:ui
+
+# 偵錯模式
+npm run test:e2e:debug
+
+# 檢視測試報告
+npm run test:e2e:report
+```
+
+##### 支援的測試環境
+
+- **Chrome on Windows 10** - 主流桌面環境
+- **Chrome on macOS Big Sur** - Mac 用戶環境
+- **Firefox on Ubuntu 22.04** - Linux 環境
+- **Edge on Windows 11** - 最新 Windows 環境
+
+##### LambdaTest 功能特色
+
+- 🌐 **真實設備測試** - 在實際設備上運行，非模擬器
+- 📹 **自動錄影** - 測試過程自動錄影
+- 📊 **網路監控** - 捕獲網路請求和響應
+- 🐛 **控制台日誌** - 收集瀏覽器控制台日誌
+- 🔄 **跨瀏覽器測試** - 確保跨瀏覽器相容性
+
+詳細設定請參考 [E2E Testing Guide](./e2e/README.md)。
 
 ---
 
