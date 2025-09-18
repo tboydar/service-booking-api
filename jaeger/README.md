@@ -12,21 +12,45 @@ Jaeger 是一個開源的分布式追蹤系統，用於監控和診斷微服務�
 # 進入 jaeger 目錄
 cd jaeger
 
-# 使用 docker-compose 啟動
-docker-compose -f docker-compose-v2.yml up -d
+# 使用 docker compose 啟動 (Docker Compose V2)
+docker compose -f docker-compose-v2.yml up -d
 
 # 檢查服務狀態
-docker-compose -f docker-compose-v2.yml ps
+docker compose -f docker-compose-v2.yml ps
 ```
 
 ### 2. 訪問 Jaeger UI
 
 開啟瀏覽器訪問: http://localhost:16686
 
-### 3. 停止服務
+### 3. 驗證服務依賴關係 (Demo)
+
+#### 啟動測試服務
+```bash
+# 啟動主服務
+npm run dev
+
+# 啟動模擬支付服務 (另一個終端)
+node payment-service.js
+```
+
+#### 產生追蹤數據
+```bash
+# 創建測試服務和預約
+curl -X POST http://localhost:3000/booking/create \
+  -H "Content-Type: application/json" \
+  -d '{"serviceId": "test-service-001", "userId": "demo-user", "date": "2025-09-20", "time": "14:00"}'
+```
+
+#### 查看結果
+- **服務列表**: http://localhost:16686/search
+- **依賴關係圖**: http://localhost:16686/dependencies
+- **追蹤詳情**: 選擇任一 trace 查看完整調用鏈
+
+### 4. 停止服務
 
 ```bash
-docker-compose -f docker-compose-v2.yml down
+docker compose -f docker-compose-v2.yml down
 ```
 
 ## 🏗️ 系統架構
