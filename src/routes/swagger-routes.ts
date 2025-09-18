@@ -1,8 +1,8 @@
 import Router from 'koa-router';
 import { swaggerSpec } from '../config/swagger';
 
-// Type declaration for koa-swagger-ui
-const koaSwagger = require('koa-swagger-ui').koaSwagger;
+// Type declaration for koa2-swagger-ui
+const { koaSwagger } = require('koa2-swagger-ui');
 
 const router = new Router();
 
