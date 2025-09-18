@@ -50,3 +50,18 @@ test-results/
 # PDF documents
 *.pdf
 NodeJS 考題.pdf
+
+# Development and test files
+CLAUDE.md
+TASK_*.md
+answer_*.md
+dev.sh
+e2e_test_*.md
+k6_test_*.md
+nodejs_test.md
+post.http
+*.http
+todo.md
+ref_codereview.md
+v1_plan.md
+postman.http

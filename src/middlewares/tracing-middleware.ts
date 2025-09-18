@@ -32,8 +32,8 @@ export function tracingMiddleware() {
     });
 
     // 將 span 添加到 context 中，方便後續使用
-    ctx.state.span = span;
-    ctx.state.requestId = span.spanContext().traceId;
+    ctx['state']['span'] = span;
+    ctx['state']['requestId'] = span.spanContext().traceId;
 
     try {
       // 在 span 上下文中執行後續中介軟體
@@ -90,9 +90,9 @@ export function tracingMiddleware() {
 export function databaseTracingMiddleware() {
   return async (ctx: Context, next: Next) => {
     // 包裝資料庫查詢函數
-    if (ctx.state.db) {
-      const originalQuery = ctx.state.db.query;
-      ctx.state.db.query = async (sql: string, params?: any[]) => {
+    if (ctx['state']['db']) {
+      const originalQuery = ctx['state']['db'].query;
+      ctx['state']['db'].query = async (sql: string, params?: any[]) => {
         return await withSpan(
           'db.query',
           async () => originalQuery(sql, params),
@@ -101,7 +101,7 @@ export function databaseTracingMiddleware() {
             attributes: {
               'db.system': 'sqlite',
               'db.statement': sql.substring(0, 100), // 截斷長查詢
-              'db.operation': sql.split(' ')[0].toUpperCase(),
+              'db.operation': sql.split(' ')[0]?.toUpperCase() || 'UNKNOWN',
               'db.params.count': params?.length || 0,
             },
           }
@@ -121,7 +121,6 @@ export function performanceTracingMiddleware() {
   return async (ctx: Context, next: Next) => {
     const startTime = Date.now();
     const startCpu = process.cpuUsage();
-    const startMem = process.memoryUsage();
 
     await next();
 
@@ -151,8 +150,8 @@ export function performanceTracingMiddleware() {
     }
 
     // 在響應頭中添加追蹤資訊
-    if (ctx.state.requestId) {
-      ctx.set('X-Request-ID', ctx.state.requestId);
+    if (ctx['state']['requestId']) {
+      ctx.set('X-Request-ID', ctx['state']['requestId']);
       ctx.set('X-Response-Time', `${duration}ms`);
     }
   };
@@ -168,13 +167,13 @@ export function userTracingMiddleware() {
     await next();
 
     // 如果用戶已認證，添加用戶屬性
-    if (ctx.state.user) {
+    if (ctx['state']['user']) {
       const span = trace.getActiveSpan();
       if (span) {
         span.setAttributes({
-          'user.id': ctx.state.user.id,
-          'user.email': ctx.state.user.email,
-          'user.role': ctx.state.user.role || 'user',
+          'user.id': ctx['state']['user'].id,
+          'user.email': ctx['state']['user'].email,
+          'user.role': ctx['state']['user'].role || 'user',
         });
       }
     }
@@ -187,8 +186,6 @@ export function userTracingMiddleware() {
  * 展示如何在業務邏輯中添加自定義追蹤
  */
 export async function tracedBusinessLogic(ctx: Context) {
-  const tracer = getTracer('business-logic');
-
   // 範例：追蹤服務預約流程
   return await withSpan('booking.create', async () => {
     // 步驟 1: 驗證用戶
@@ -211,8 +208,8 @@ export async function tracedBusinessLogic(ctx: Context) {
       },
       {
         attributes: {
-          'service.id': ctx.params.serviceId,
-          'booking.date': ctx.request.body.date,
+          'service.id': ctx['params'].serviceId,
+          'booking.date': (ctx.request.body as any).date,
         },
       }
     );
@@ -223,7 +220,7 @@ export async function tracedBusinessLogic(ctx: Context) {
         // 創建預約記錄...
         addEvent('booking_created', {
           booking_id: 'BOOK-123456',
-          service_id: ctx.params.serviceId,
+          service_id: ctx['params'].serviceId,
         });
         return { success: true, bookingId: 'BOOK-123456' };
       });
@@ -285,9 +282,9 @@ export class TracedController {
     return await withSpan('controller.get_services', async () => {
       // 添加查詢參數屬性
       setSpanAttributes({
-        'query.page': ctx.query.page || 1,
-        'query.limit': ctx.query.limit || 10,
-        'query.filter': ctx.query.filter || 'none',
+        'query.page': ctx['query']['page'] || 1,
+        'query.limit': ctx['query']['limit'] || 10,
+        'query.filter': ctx['query']['filter'] || 'none',
       });
 
       // 模擬資料庫查詢
@@ -307,7 +304,7 @@ export class TracedController {
       ctx.body = {
         success: true,
         data: services,
-        requestId: ctx.state.requestId,
+        requestId: ctx['state']['requestId'],
       };
     });
   }
@@ -319,14 +316,14 @@ export class TracedController {
     return await withSpan(
       'controller.create_booking',
       async () => {
-        const bookingData = ctx.request.body;
+        const bookingData = ctx.request.body as any;
 
         // 添加預約資料屬性
         setSpanAttributes({
           'booking.service_id': bookingData.serviceId,
           'booking.date': bookingData.date,
           'booking.time': bookingData.time,
-          'booking.customer_id': ctx.state.user?.id,
+          'booking.customer_id': ctx['state']['user']?.id,
         });
 
         // 執行業務邏輯

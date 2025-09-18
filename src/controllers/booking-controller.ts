@@ -158,7 +158,7 @@ export class BookingController {
     });
 
     try {
-      const { bookingId } = ctx.params;
+      const { bookingId } = ctx['params'];
       const { transactionId } = ctx.query;
 
       // 如果有交易ID，查詢支付狀態
@@ -237,7 +237,7 @@ export class BookingController {
     });
 
     try {
-      const { bookingId } = ctx.params;
+      const { bookingId } = ctx['params'];
       const { transactionId, amount } = ctx.request.body as any;
 
       // 調用退款服務

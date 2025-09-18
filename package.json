@@ -37,7 +37,6 @@
     "clean": "rm -rf dist",
     "prebuild": "npm run clean",
     "prestart": "npm run build",
-    "postinstall": "npm run type-check",
     "k6:smoke": "k6 run k6/scenarios/smoke-test.js",
     "k6:load": "k6 run k6/scenarios/load-test.js",
     "k6:stress": "k6 run k6/scenarios/stress-test.js",

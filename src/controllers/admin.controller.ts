@@ -143,8 +143,7 @@ export class AdminController {
 
       // Get recent log entries as activities
       const recentLogs = await this.loggerService.getLogs({
-        limit: 5,
-        level: undefined
+        limit: 5
       });
 
       const recentActivities = recentLogs.map(log => ({

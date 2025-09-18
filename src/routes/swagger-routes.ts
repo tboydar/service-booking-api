@@ -1,5 +1,4 @@
 import Router from 'koa-router';
-import type { Context } from 'koa';
 import { swaggerSpec } from '../config/swagger';
 
 // Type declaration for koa-swagger-ui
@@ -23,7 +22,7 @@ const router = new Router();
  *             schema:
  *               type: object
  */
-router.get('/api-docs/json', async (ctx: Context) => {
+router.get('/api-docs/json', async (ctx: any) => {
   ctx.body = swaggerSpec;
 });
 

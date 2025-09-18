@@ -5,7 +5,6 @@ import type {
   RegisterDto,
   LoginDto,
   LoginResponse,
-  UserResponse,
   UserResponseAttributes,
 } from '../types/user.types';
 
@@ -24,7 +23,7 @@ export class AuthService {
    * @param userData - User registration data
    * @returns Promise<UserResponse> - User response without password
    */
-  async register(userData: RegisterDto): Promise<UserResponse> {
+  async register(userData: RegisterDto): Promise<LoginResponse> {
     const { email, password, name } = userData;
 
     // Check if email already exists
