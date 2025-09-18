@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Service Booking API Documentation</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f8f9fa;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 40px 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 12px;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .nav {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .nav ul {
+            list-style: none;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .nav a {
+            color: #667eea;
+            text-decoration: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            transition: background-color 0.3s;
+        }
+
+        .nav a:hover {
+            background-color: #f1f3f4;
+        }
+
+        .content {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 30px;
+        }
+
+        .sidebar {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            height: fit-content;
+        }
+
+        .main-content {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .endpoint-section {
+            margin-bottom: 40px;
+        }
+
+        .endpoint {
+            border: 1px solid #e1e5e9;
+            border-radius: 6px;
+            margin-bottom: 20px;
+        }
+
+        .endpoint-header {
+            padding: 15px 20px;
+            background-color: #f8f9fa;
+            border-bottom: 1px solid #e1e5e9;
+        }
+
+        .method {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        .method.get { background-color: #61affe; color: white; }
+        .method.post { background-color: #49cc90; color: white; }
+        .method.put { background-color: #fca130; color: white; }
+        .method.delete { background-color: #f93e3e; color: white; }
+
+        .endpoint-path {
+            font-family: 'Monaco', 'Consolas', monospace;
+            font-size: 1.1rem;
+        }
+
+        .endpoint-description {
+            margin-top: 5px;
+            color: #666;
+        }
+
+        .endpoint-body {
+            padding: 20px;
+        }
+
+        .code-block {
+            background-color: #f8f9fa;
+            border: 1px solid #e1e5e9;
+            border-radius: 4px;
+            padding: 15px;
+            margin: 10px 0;
+            overflow-x: auto;
+        }
+
+        .code-block pre {
+            margin: 0;
+            font-family: 'Monaco', 'Consolas', monospace;
+            font-size: 0.9rem;
+        }
+
+        .response-codes {
+            margin-top: 15px;
+        }
+
+        .response-code {
+            display: inline-block;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 0.8rem;
+            margin-right: 5px;
+        }
+
+        .response-code.success { background-color: #d4edda; color: #155724; }
+        .response-code.error { background-color: #f8d7da; color: #721c24; }
+
+        .features {
+            list-style: none;
+        }
+
+        .features li {
+            padding: 8px 0;
+            border-bottom: 1px solid #f1f3f4;
+        }
+
+        .features li:last-child {
+            border-bottom: none;
+        }
+
+        .badge {
+            background-color: #667eea;
+            color: white;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 0.75rem;
+            margin-left: 8px;
+        }
+
+        .quick-start {
+            background-color: #e8f5e8;
+            padding: 20px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .content {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .nav ul {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎯 Service Booking API</h1>
+            <p>服務預約管理系統 - API 文檔</p>
+        </div>
+
+        <nav class="nav">
+            <ul>
+                <li><a href="#overview">概覽</a></li>
+                <li><a href="#authentication">認證</a></li>
+                <li><a href="#services">服務管理</a></li>
+                <li><a href="#health">健康檢查</a></li>
+                <li><a href="/swagger.json" target="_blank">OpenAPI Spec</a></li>
+                <li><a href="/" target="_blank">API Root</a></li>
+            </ul>
+        </nav>
+
+        <div class="content">
+            <div class="sidebar">
+                <div class="quick-start">
+                    <h3>🚀 快速開始</h3>
+                    <p>API 基礎 URL: <code>http://localhost:3000</code></p>
+                    <p>所有回應都是 JSON 格式</p>
+                </div>
+
+                <h3>功能特色</h3>
+                <ul class="features">
+                    <li>🔐 JWT 認證系統</li>
+                    <li>👥 會員管理</li>
+                    <li>🏪 服務管理</li>
+                    <li>📱 RESTful API</li>
+                    <li>🔍 輸入驗證</li>
+                    <li>📊 健康檢查</li>
+                    <li>📚 API 文檔</li>
+                </ul>
+
+                <h3 style="margin-top: 30px;">認證說明</h3>
+                <p>大部分 API 端點需要 JWT Token 認證。在請求標頭中加入：</p>
+                <div class="code-block">
+                    <pre>Authorization: Bearer &lt;your-jwt-token&gt;</pre>
+                </div>
+            </div>
+
+            <div class="main-content">
+                <section id="overview">
+                    <h2>API 概覽</h2>
+                    <p>Service Booking API 是一個基於 TypeScript + Node.js + Koa + SQLite 的現代化服務預約管理後端 API 系統。</p>
+                    
+                    <h3>回應格式</h3>
+                    <p>所有成功的回應都遵循以下格式：</p>
+                    <div class="code-block">
+                        <pre>{
+  "success": true,
+  "data": { /* 回應資料 */ },
+  "message": "操作成功",
+  "timestamp": "2024-01-01T00:00:00.000Z"
+}</pre>
+                    </div>
+
+                    <p>錯誤回應格式：</p>
+                    <div class="code-block">
+                        <pre>{
+  "success": false,
+  "error": {
+    "code": "ERROR_CODE",
+    "message": "錯誤訊息",
+    "details": [
+      {
+        "field": "欄位名稱",
+        "message": "欄位錯誤訊息"
+      }
+    ]
+  },
+  "timestamp": "2024-01-01T00:00:00.000Z",
+  "path": "/api/path"
+}</pre>
+                    </div>
+                </section>
+
+                <section id="authentication" class="endpoint-section">
+                    <h2>認證端點</h2>
+
+                    <div class="endpoint">
+                        <div class="endpoint-header">
+                            <span class="method post">POST</span>
+                            <span class="endpoint-path">/auth/register</span>
+                            <div class="endpoint-description">用戶註冊</div>
+                        </div>
+                        <div class="endpoint-body">
+                            <h4>請求範例：</h4>
+                            <div class="code-block">
+                                <pre>curl -X POST http://localhost:3000/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "user@example.com",
+    "password": "password123",
+    "name": "張三"
+  }'</pre>
+                            </div>
+                            <div class="response-codes">
+                                <span class="response-code success">201 Created</span>
+                                <span class="response-code error">400 Bad Request</span>
+                                <span class="response-code error">409 Conflict</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="endpoint">
+                        <div class="endpoint-header">
+                            <span class="method post">POST</span>
+                            <span class="endpoint-path">/auth/login</span>
+                            <div class="endpoint-description">用戶登入</div>
+                        </div>
+                        <div class="endpoint-body">
+                            <h4>請求範例：</h4>
+                            <div class="code-block">
+                                <pre>curl -X POST http://localhost:3000/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "user@example.com",
+    "password": "password123"
+  }'</pre>
+                            </div>
+                            <div class="response-codes">
+                                <span class="response-code success">200 OK</span>
+                                <span class="response-code error">400 Bad Request</span>
+                                <span class="response-code error">401 Unauthorized</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="endpoint">
+                        <div class="endpoint-header">
+                            <span class="method post">POST</span>
+                            <span class="endpoint-path">/auth/logout</span>
+                            <span class="badge">Auth Required</span>
+                            <div class="endpoint-description">用戶登出</div>
+                        </div>
+                        <div class="endpoint-body">
+                            <div class="response-codes">
+                                <span class="response-code success">200 OK</span>
+                                <span class="response-code error">401 Unauthorized</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="endpoint">
+                        <div class="endpoint-header">
+                            <span class="method post">POST</span>
+                            <span class="endpoint-path">/auth/refresh</span>
+                            <span class="badge">Auth Required</span>
+                            <div class="endpoint-description">更新 Token</div>
+                        </div>
+                        <div class="endpoint-body">
+                            <div class="response-codes">
+                                <span class="response-code success">200 OK</span>
+                                <span class="response-code error">401 Unauthorized</span>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="services" class="endpoint-section">
+                    <h2>服務管理</h2>
+
+                    <div class="endpoint">
+                        <div class="endpoint-header">
+                            <span class="method get">GET</span>
+                            <span class="endpoint-path">/services</span>
+                            <div class="endpoint-description">獲取服務列表</div>
+                        </div>
+                        <div class="endpoint-body">
+                            <h4>查詢參數：</h4>
+                            <ul>
+                                <li><code>page</code> - 頁碼 (預設: 1)</li>
+                                <li><code>limit</code> - 每頁筆數 (預設: 10)</li>
+                                <li><code>sortBy</code> - 排序欄位 (name, price, order, createdAt)</li>
+                                <li><code>sortOrder</code> - 排序方向 (asc, desc)</li>
+                            </ul>
+                            <h4>請求範例：</h4>
+                            <div class="code-block">
+                                <pre>curl -X GET "http://localhost:3000/services?page=1&limit=10&sortBy=order"</pre>
+                            </div>
+                            <div class="response-codes">
+                                <span class="response-code success">200 OK</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="endpoint">
+                        <div class="endpoint-header">
+                            <span class="method get">GET</span>
+                            <span class="endpoint-path">/services/:id</span>
+                            <div class="endpoint-description">獲取服務詳情</div>
+                        </div>
+                        <div class="endpoint-body">
+                            <h4>請求範例：</h4>
+                            <div class="code-block">
+                                <pre>curl -X GET http://localhost:3000/services/123e4567-e89b-12d3-a456-426614174001</pre>
+                            </div>
+                            <div class="response-codes">
+                                <span class="response-code success">200 OK</span>
+                                <span class="response-code error">400 Bad Request</span>
+                                <span class="response-code error">404 Not Found</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="endpoint">
+                        <div class="endpoint-header">
+                            <span class="method post">POST</span>
+                            <span class="endpoint-path">/services</span>
+                            <span class="badge">Auth Required</span>
+                            <div class="endpoint-description">創建新服務</div>
+                        </div>
+                        <div class="endpoint-body">
+                            <h4>請求範例：</h4>
+                            <div class="code-block">
+                                <pre>curl -X POST http://localhost:3000/services \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer &lt;your-jwt-token&gt;" \
+  -d '{
+    "name": "網站開發服務",
+    "description": "提供專業的網站開發服務",
+    "price": 50000,
+    "showTime": 60,
+    "order": 1,
+    "isPublic": true
+  }'</pre>
+                            </div>
+                            <div class="response-codes">
+                                <span class="response-code success">201 Created</span>
+                                <span class="response-code error">400 Bad Request</span>
+                                <span class="response-code error">401 Unauthorized</span>
+                                <span class="response-code error">403 Forbidden</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="endpoint">
+                        <div class="endpoint-header">
+                            <span class="method put">PUT</span>
+                            <span class="endpoint-path">/services/:id</span>
+                            <span class="badge">Auth Required</span>
+                            <div class="endpoint-description">更新服務</div>
+                        </div>
+                        <div class="endpoint-body">
+                            <div class="response-codes">
+                                <span class="response-code success">200 OK</span>
+                                <span class="response-code error">400 Bad Request</span>
+                                <span class="response-code error">401 Unauthorized</span>
+                                <span class="response-code error">403 Forbidden</span>
+                                <span class="response-code error">404 Not Found</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="endpoint">
+                        <div class="endpoint-header">
+                            <span class="method delete">DELETE</span>
+                            <span class="endpoint-path">/services/:id</span>
+                            <span class="badge">Auth Required</span>
+                            <div class="endpoint-description">刪除服務</div>
+                        </div>
+                        <div class="endpoint-body">
+                            <div class="response-codes">
+                                <span class="response-code success">200 OK</span>
+                                <span class="response-code error">400 Bad Request</span>
+                                <span class="response-code error">401 Unauthorized</span>
+                                <span class="response-code error">403 Forbidden</span>
+                                <span class="response-code error">404 Not Found</span>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="health" class="endpoint-section">
+                    <h2>健康檢查</h2>
+
+                    <div class="endpoint">
+                        <div class="endpoint-header">
+                            <span class="method get">GET</span>
+                            <span class="endpoint-path">/health</span>
+                            <div class="endpoint-description">系統健康檢查</div>
+                        </div>
+                        <div class="endpoint-body">
+                            <h4>請求範例：</h4>
+                            <div class="code-block">
+                                <pre>curl -X GET http://localhost:3000/health</pre>
+                            </div>
+                            <div class="response-codes">
+                                <span class="response-code success">200 OK</span>
+                                <span class="response-code error">503 Service Unavailable</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="endpoint">
+                        <div class="endpoint-header">
+                            <span class="method get">GET</span>
+                            <span class="endpoint-path">/health/version</span>
+                            <div class="endpoint-description">獲取 API 版本資訊</div>
+                        </div>
+                        <div class="endpoint-body">
+                            <h4>請求範例：</h4>
+                            <div class="code-block">
+                                <pre>curl -X GET http://localhost:3000/health/version</pre>
+                            </div>
+                            <div class="response-codes">
+                                <span class="response-code success">200 OK</span>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Simple smooth scrolling for navigation links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+</html>
