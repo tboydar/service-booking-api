@@ -1,0 +1,24 @@
+# Jaeger 資料儲存目錄
+# BadgerDB 會在此目錄儲存追蹤資料
+data/
+
+# 環境變數檔案
+.env
+
+# 系統檔案
+.DS_Store
+Thumbs.db
+
+# 日誌檔案
+*.log
+
+# 暫存檔案
+*.tmp
+*.temp
+
+# 備份檔案
+*.backup
+*.bak
+
+# Docker volumes (如果使用 named volumes)
+volumes/
