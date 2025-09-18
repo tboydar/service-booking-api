@@ -45,4 +45,11 @@ Thumbs.db
 # Test files
 test-results/
 
+# E2E Test artifacts
+e2e-results/
+e2e-report/
+test-results/
+playwright-report/
+playwright/.cache/
+
 .history
