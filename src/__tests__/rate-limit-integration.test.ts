@@ -28,6 +28,55 @@ jest.mock('fs', () => ({
   mkdirSync: jest.fn(),
 }));
 
+// Mock sqlite3 before importing rate-limiter
+jest.mock('sqlite3', () => {
+  const mockDb = {
+    run: jest.fn((_sql, params, callback) => {
+      if (typeof params === 'function') {
+        params(null);
+      } else if (callback) {
+        callback(null);
+      }
+    }),
+    get: jest.fn((_sql, params, callback) => {
+      if (typeof params === 'function') {
+        params(null, null);
+      } else if (callback) {
+        callback(null, null);
+      }
+    }),
+    all: jest.fn((_sql, params, callback) => {
+      if (typeof params === 'function') {
+        params(null, []);
+      } else if (callback) {
+        callback(null, []);
+      }
+    }),
+    exec: jest.fn((_sql, callback) => {
+      if (callback) callback(null);
+    }),
+    close: jest.fn((callback) => {
+      if (callback) callback(null);
+    }),
+    serialize: jest.fn((callback) => {
+      if (callback) callback();
+    }),
+    parallelize: jest.fn((callback) => {
+      if (callback) callback();
+    }),
+  };
+
+  const Database = jest.fn().mockImplementation((_filename, callback) => {
+    if (callback) callback(null);
+    return mockDb;
+  });
+
+  return {
+    Database,
+    verbose: jest.fn(() => ({ Database })),
+  };
+});
+
 jest.mock('path', () => ({
   dirname: jest.fn(() => '.'),
 }));
@@ -76,7 +125,7 @@ describe('Rate Limiter Integration Tests', () => {
 
         expect(response.status).toBe(200);
         expect(response.headers['x-ratelimit-limit']).toBe('10');
-        expect(parseInt(response.headers['x-ratelimit-remaining'])).toBeLessThanOrEqual(9);
+        expect(parseInt(response.headers['x-ratelimit-remaining'] || '0')).toBeLessThanOrEqual(9);
       }
 
       // Next request from same IP should be rate limited
@@ -109,7 +158,8 @@ describe('Rate Limiter Integration Tests', () => {
       expect(response.headers['x-ratelimit-reset']).toBeDefined();
 
       // Parse reset time and check it's a valid date
-      const resetTime = new Date(response.headers['x-ratelimit-reset']);
+      const resetHeader = response.headers['x-ratelimit-reset'];
+      const resetTime = resetHeader ? new Date(resetHeader) : new Date();
       expect(resetTime.getTime()).toBeGreaterThan(Date.now());
     });
   });

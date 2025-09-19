@@ -11,6 +11,7 @@ describe('Service Routes', () => {
       createService: jest.fn(),
       updateService: jest.fn(),
       deleteService: jest.fn(),
+      restoreService: jest.fn(),  // Add missing method
       serviceManagementService: {} as any,
     } as any;
   });

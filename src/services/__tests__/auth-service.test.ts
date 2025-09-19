@@ -65,6 +65,7 @@ describe('AuthService', () => {
       mockUserRepository.findByEmail.mockResolvedValue(null);
       MockedPasswordUtils.isValidPassword.mockReturnValue(true);
       MockedPasswordUtils.hashPassword.mockResolvedValue('hashed-password');
+      MockedJWTUtils.generateToken.mockReturnValue('test-jwt-token');
       mockUserRepository.create.mockResolvedValue(mockUser as any);
 
       // Act
@@ -89,11 +90,14 @@ describe('AuthService', () => {
       expect(result).toEqual({
         success: true,
         data: {
-          id: 'user-123',
-          email: 'test@example.com',
-          name: 'Test User',
-          createdAt: mockUser.createdAt,
-          updatedAt: mockUser.updatedAt,
+          user: {
+            id: 'user-123',
+            email: 'test@example.com',
+            name: 'Test User',
+            createdAt: mockUser.createdAt,
+            updatedAt: mockUser.updatedAt,
+          },
+          token: 'test-jwt-token',
         },
         timestamp: expect.any(String),
       });

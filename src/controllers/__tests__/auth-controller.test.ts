@@ -2,6 +2,7 @@ import { Context } from 'koa';
 import { AuthController } from '../auth-controller';
 import { AuthService } from '../../services/auth-service';
 import { AppError } from '../../middlewares/error-handler';
+import { LoginResponse } from '../../types/user.types';
 
 // Mock the AuthService
 jest.mock('../../services/auth-service');
@@ -52,14 +53,17 @@ describe('AuthController', () => {
       name: 'Test User',
     };
 
-    const mockRegisterResponse = {
-      success: true as const,
+    const mockRegisterResponse: LoginResponse = {
+      success: true,
       data: {
-        id: 'user-id',
-        email: 'test@example.com',
-        name: 'Test User',
-        createdAt: new Date(),
-        updatedAt: new Date(),
+        user: {
+          id: 'user-id',
+          email: 'test@example.com',
+          name: 'Test User',
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+        token: 'test-jwt-token',
       },
       timestamp: '2023-01-01T00:00:00.000Z',
     };
@@ -145,8 +149,8 @@ describe('AuthController', () => {
       password: 'password123',
     };
 
-    const mockLoginResponse = {
-      success: true as const,
+    const mockLoginResponse: LoginResponse = {
+      success: true,
       data: {
         user: {
           id: 'user-id',

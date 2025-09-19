@@ -1,17 +1,53 @@
 import { Context, Next } from 'koa';
 import { AppError } from '../error-handler';
 
-// Mock better-sqlite3 before importing rate-limiter
-jest.mock('better-sqlite3', () => {
-  return jest.fn().mockImplementation(() => ({
-    prepare: jest.fn(() => ({
-      run: jest.fn(() => ({ changes: 0 })),
-      get: jest.fn(),
-      all: jest.fn(() => []),
-    })),
-    exec: jest.fn(),
-    close: jest.fn(),
-  }));
+// Mock sqlite3 before importing rate-limiter
+jest.mock('sqlite3', () => {
+  const mockDb = {
+    run: jest.fn((_sql, params, callback) => {
+      if (typeof params === 'function') {
+        params(null);
+      } else if (callback) {
+        callback(null);
+      }
+    }),
+    get: jest.fn((_sql, params, callback) => {
+      if (typeof params === 'function') {
+        params(null, null);
+      } else if (callback) {
+        callback(null, null);
+      }
+    }),
+    all: jest.fn((_sql, params, callback) => {
+      if (typeof params === 'function') {
+        params(null, []);
+      } else if (callback) {
+        callback(null, []);
+      }
+    }),
+    exec: jest.fn((_sql, callback) => {
+      if (callback) callback(null);
+    }),
+    close: jest.fn((callback) => {
+      if (callback) callback(null);
+    }),
+    serialize: jest.fn((callback) => {
+      if (callback) callback();
+    }),
+    parallelize: jest.fn((callback) => {
+      if (callback) callback();
+    }),
+  };
+
+  const Database = jest.fn().mockImplementation((_filename, callback) => {
+    if (callback) callback(null);
+    return mockDb;
+  });
+
+  return {
+    Database,
+    verbose: jest.fn(() => ({ Database })),
+  };
 });
 
 // Mock rate-limiter-flexible

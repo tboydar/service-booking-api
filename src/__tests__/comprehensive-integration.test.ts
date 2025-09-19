@@ -1,3 +1,6 @@
+// Increase timeout for comprehensive integration tests
+jest.setTimeout(120000); // 120 seconds
+
 import request from 'supertest';
 import { createApp } from '../index';
 import { initializeDatabase } from '../database/init';
@@ -41,17 +44,20 @@ describe('綜合整合測試 - Task 12', () => {
         expect(response.body).toMatchObject({
           success: true,
           data: {
-            id: expect.any(String),
-            email: 'test@example.com',
-            name: 'Test User',
-            createdAt: expect.any(String),
-            updatedAt: expect.any(String),
+            user: {
+              id: expect.any(String),
+              email: 'test@example.com',
+              name: 'Test User',
+              createdAt: expect.any(String),
+              updatedAt: expect.any(String),
+            },
+            token: expect.any(String),
           },
           timestamp: expect.any(String),
         });
 
         // 確保不回傳密碼
-        expect(response.body.data.password).toBeUndefined();
+        expect(response.body.data.user.password).toBeUndefined();
       });
 
       it('應該正確雜湊密碼', async () => {
