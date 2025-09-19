@@ -137,8 +137,11 @@ describe('Integration Tests - Task 10 Verification', () => {
       expect(response.body).toMatchObject({
         success: true,
         data: expect.objectContaining({
-          email: 'test2@example.com',
-          name: 'Test User 2',
+          user: expect.objectContaining({
+            email: 'test2@example.com',
+            name: 'Test User 2',
+          }),
+          token: expect.any(String),
         }),
       });
     });

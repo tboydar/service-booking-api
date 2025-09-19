@@ -107,6 +107,11 @@ export class DatabaseUtils {
       throw new Error('Database size check is only supported for SQLite');
     }
 
+    // Return 0 for in-memory database
+    if (config.DATABASE_STORAGE === ':memory:') {
+      return 0;
+    }
+
     try {
       const fs = await import('fs');
       const stats = fs.statSync(config.DATABASE_STORAGE);

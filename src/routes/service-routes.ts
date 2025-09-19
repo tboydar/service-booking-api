@@ -78,6 +78,7 @@ export const createServiceRoutes = (
    */
   router.put(
     '/:id/restore',
+    apiRateLimit,
     jwtAuth,
     validateParams(uuidParamSchema),
     controller.restoreService

@@ -6,30 +6,24 @@
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.3.3-blue)
 ![Koa](https://img.shields.io/badge/Koa-2.14.2-lightgrey)
 ![SQLite](https://img.shields.io/badge/SQLite-3.x-orange)
-![Admin](https://img.shields.io/badge/Admin-Dashboard-purple)
 ![License](https://img.shields.io/badge/License-MIT-yellow)
 
-一個基於 **TypeScript + Node.js + Koa + SQLite** 的現代化服務預約管理系統，包含完整的管理後台
+一個基於 **TypeScript + Node.js + Koa + SQLite** 的現代化服務預約管理後端 API 系統
 
-[快速開始](#-快速開始) • [系統架構](#-系統架構) • [API 文檔](#-api-文檔) • [管理後台](#-管理後台) • [開發指南](#-開發指南) • [部署指南](#-部署指南)
+[快速開始](#-快速開始) • [系統架構](#-系統架構) • [API 文檔](#-api-文檔) • [開發指南](#-開發指南) • [部署](#-部署)
 
 </div>
-
-postman: https://www.postman.com/speeding-escape-596247/public-demo/collection/l2k4loa/service-booking-api-http-file-parity?action=share&creator=28893714
 
 ---
 
 ## 📖 目錄
 
 - [專案簡介](#-專案簡介)
-- [最新更新](#-最新更新)
 - [快速開始](#-快速開始)
 - [系統架構](#-系統架構)
 - [API 文檔](#-api-文檔)
-- [管理後台](#-管理後台)
 - [開發指南](#-開發指南)
-- [測試指南](#-測試指南)
-- [部署指南](#-部署指南)
+- [測試策略](#-測試策略)
 - [CI/CD 流程](#-cicd-流程)
 - [Docker 容器化](#-docker-容器化)
 - [監控與維運](#-監控與維運)
@@ -39,53 +33,37 @@ postman: https://www.postman.com/speeding-escape-596247/public-demo/collection/l
 
 ---
 
-## 🆕 最新更新
-
-### v1.1.0 (2025-09-17)
-- ✨ **新增管理後台系統**：完整的 Admin Dashboard
-- 🔐 **管理員登入系統**：獨立的管理員認證機制
-- 📊 **系統監控功能**：即時監控 CPU、記憶體、磁碟使用率
-- 📝 **日誌管理系統**：查看、搜尋、匯出應用程式日誌
-- ⏰ **排程任務管理**：視覺化的任務排程管理介面
-- 🚀 **K6 效能測試**：整合效能測試工具與報告
-- 💾 **雙資料庫架構**：主資料庫 + 排程佇列資料庫
-
-### v1.0.0 (2025-09-01)
-- 🎯 初始版本發布
-- 🔐 JWT 認證系統
-- 📦 服務管理 CRUD
-- ✅ 完整測試覆蓋
-
----
-
 ## 🌟 專案簡介
 
 ### 核心功能
 
 ```mermaid
-mindmap
-  root((Service Booking API))
-    會員系統
-      註冊功能
-      登入驗證
-      JWT Token
-      密碼加密
-    服務管理
-      服務列表
-      服務詳情
-      新增服務
-      更新服務
-      刪除服務
-    資料管理
-      SQLite 資料庫
-      Sequelize ORM
-      資料遷移
-      種子資料
-    系統功能
-      輸入驗證
-      錯誤處理
-      日誌記錄
-      健康檢查
+graph TD
+    A[Service Booking API] --> B[會員系統]
+    A --> C[服務管理]
+    A --> D[資料管理]
+    A --> E[系統功能]
+
+    B --> B1[註冊功能]
+    B --> B2[登入驗證]
+    B --> B3[JWT Token]
+    B --> B4[密碼加密]
+
+    C --> C1[服務列表]
+    C --> C2[服務詳情]
+    C --> C3[新增服務]
+    C --> C4[更新服務]
+    C --> C5[刪除服務]
+
+    D --> D1[SQLite 資料庫]
+    D --> D2[Sequelize ORM]
+    D --> D3[資料遷移]
+    D --> D4[種子資料]
+
+    E --> E1[輸入驗證]
+    E --> E2[錯誤處理]
+    E --> E3[日誌記錄]
+    E --> E4[健康檢查]
 ```
 
 ### 技術特色
@@ -94,11 +72,6 @@ mindmap
 - 🚀 **Koa 框架** - 輕量且高效的 Web 框架
 - 🗄️ **SQLite** - 輕量級嵌入式資料庫
 - 🔐 **JWT 認證** - 安全的身份驗證機制
-- 🖥️ **管理後台** - 功能完整的 Admin Dashboard
-- 📊 **系統監控** - 即時系統資源監控
-- 📝 **日誌管理** - Winston 日誌系統
-- ⏰ **任務排程** - node-schedule 排程管理
-- 🚦 **K6 測試** - 整合效能測試
 - ✅ **Joi 驗證** - 強大的資料驗證
 - 🧪 **完整測試** - 單元測試與整合測試
 - 📝 **ESLint + Prettier** - 統一的程式碼風格
@@ -126,6 +99,8 @@ flowchart LR
     DB --> Run[啟動服務]
     Run --> Success([成功運行!])
 
+    style Start fill:#e1f5e1
+    style Success fill:#e1f5e1
 ```
 
 ### 詳細步驟
@@ -293,6 +268,10 @@ flowchart LR
     Repositories --> Models
     Models --> Database
 
+    style Routes fill:#e1f5fe
+    style Controllers fill:#fff9c4
+    style Services fill:#f3e5f5
+    style Database fill:#ffebee
 ```
 
 ### 資料庫架構 (ER Diagram)
@@ -353,61 +332,34 @@ service-booking-api/
 │   │   └── jwt.ts           # JWT 設定
 │   ├── 📁 controllers/       # 控制器層
 │   │   ├── auth.controller.ts
-│   │   ├── service.controller.ts
-│   │   └── admin.controller.ts # 管理後台控制器
+│   │   └── service.controller.ts
 │   ├── 📁 services/          # 服務層（業務邏輯）
 │   │   ├── auth.service.ts
-│   │   ├── service.service.ts
-│   │   ├── system.service.ts # 系統監控服務
-│   │   ├── logger.service.ts # 日誌服務
-│   │   └── scheduler.service.ts # 排程服務
+│   │   └── service.service.ts
 │   ├── 📁 repositories/      # 資料存取層
 │   │   ├── user.repository.ts
-│   │   ├── service.repository.ts
-│   │   └── job.repository.ts # 排程任務儲存庫
+│   │   └── service.repository.ts
 │   ├── 📁 models/            # 資料模型
 │   │   ├── user.model.ts
-│   │   ├── service.model.ts
-│   │   └── job.model.ts     # 排程任務模型
+│   │   └── service.model.ts
 │   ├── 📁 middlewares/       # 中介軟體
-│   │   ├── jwt-auth.ts      # JWT 認證
-│   │   ├── admin-auth.ts    # 管理員認證
-│   │   ├── error-handler.ts # 錯誤處理
-│   │   └── validation.ts    # 資料驗證
+│   │   ├── auth.middleware.ts
+│   │   ├── error.middleware.ts
+│   │   └── validation.middleware.ts
 │   ├── 📁 routes/            # 路由定義
 │   │   ├── auth.routes.ts
 │   │   ├── service.routes.ts
-│   │   ├── admin.routes.ts  # 管理後台路由
 │   │   └── index.ts
 │   ├── 📁 utils/             # 工具函數
-│   │   ├── jwt.ts           # JWT 工具
-│   │   ├── password.ts      # 密碼工具
-│   │   └── system-info.ts   # 系統資訊工具
+│   │   ├── logger.ts
+│   │   └── validator.ts
 │   ├── 📁 database/          # 資料庫相關
 │   │   ├── migrations/      # 資料庫遷移
 │   │   └── seeds/           # 種子資料
 │   ├── 📁 types/             # TypeScript 型別定義
 │   └── 📄 index.ts           # 應用程式入口
-├── 📁 admin/                  # 管理後台前端
-│   ├── 📁 public/            # 靜態資源
-│   │   ├── css/             # 樣式檔案
-│   │   ├── js/              # JavaScript
-│   │   └── images/          # 圖片資源
-│   └── 📁 views/             # HTML 模板
-│       ├── login.html       # 登入頁面
-│       ├── dashboard.html   # 儀表板
-│       ├── logs.html        # 日誌查看
-│       ├── system.html      # 系統監控
-│       ├── scheduler.html   # 排程管理
-│       └── k6-test.html     # K6 測試
-├── 📁 k6/                     # K6 測試腳本
-│   ├── scenarios/           # 測試場景
-│   └── reports/             # 測試報告
-├── 📁 logs/                   # 日誌檔案
 ├── 📁 tests/                  # 測試檔案
 ├── 📁 dist/                   # 編譯輸出
-├── 📄 database.sqlite        # 主資料庫
-├── 📄 queue.sqlite           # 排程佇列資料庫
 ├── 📄 .env.example           # 環境變數範本
 ├── 📄 .eslintrc.js           # ESLint 設定
 ├── 📄 .prettierrc            # Prettier 設定
@@ -419,108 +371,7 @@ service-booking-api/
 
 ---
 
-## 🖥️ 管理後台
-
-> 📖 **管理後台文檔**: [docs/admin-guide.md](docs/admin-guide.md)
-> 🔐 **預設管理員帳號**: admin@example.com / Admin123!
-
-### 管理後台功能架構
-
-```mermaid
-flowchart TB
-    subgraph "管理後台系統"
-        Admin["/admin"] --> Login[登入頁面]
-        Admin --> Dashboard[儀表板]
-
-        Dashboard --> Monitor[系統監控]
-        Dashboard --> Logs[日誌管理]
-        Dashboard --> Scheduler[排程管理]
-        Dashboard --> Performance[效能測試]
-
-        Monitor --> CPU[CPU 使用率]
-        Monitor --> Memory[記憶體狀態]
-        Monitor --> Disk[磁碟空間]
-        Monitor --> Network[網路資訊]
-        Monitor --> Database[資料庫狀態]
-
-        Logs --> AppLogs[應用程式日誌]
-        Logs --> ErrorLogs[錯誤日誌]
-        Logs --> AccessLogs[存取日誌]
-
-        Scheduler --> JobList[任務列表]
-        Scheduler --> JobCreate[建立任務]
-        Scheduler --> JobHistory[執行歷史]
-
-        Performance --> K6Tests[K6 測試]
-        Performance --> Reports[效能報告]
-        Performance --> Metrics[指標分析]
-    end
-
-```
-
-### 管理後台特色功能
-
-#### 🏠 儀表板 Dashboard
-- **系統總覽**：即時顯示系統狀態
-- **快速統計**：API 呼叫次數、用戶數、服務數
-- **近期活動**：最新的系統事件與操作記錄
-- **快捷操作**：常用功能的快速入口
-
-#### 📊 系統監控 System Monitor
-```javascript
-// 即時監控資訊
-{
-  cpu: { usage: 23.5, cores: 8 },
-  memory: { used: 2.3, total: 16, unit: "GB" },
-  disk: { used: 45, total: 500, unit: "GB" },
-  network: { ip: "192.168.1.100", connections: 42 },
-  database: { size: 53.2, tables: 5, unit: "MB" },
-  uptime: "5 days 12:34:56"
-}
-```
-
-#### 📝 日誌管理 Log Viewer
-- **即時日誌**：WebSocket 即時推送
-- **日誌篩選**：依層級、時間、關鍵字篩選
-- **日誌匯出**：支援 JSON、CSV 格式匯出
-- **錯誤追蹤**：自動高亮錯誤與警告
-
-#### ⏰ 排程管理 Task Scheduler
-- **Cron 表達式**：支援標準 Cron 語法
-- **任務類型**：資料備份、報表生成、清理任務
-- **執行歷史**：詳細的執行記錄與結果
-- **失敗重試**：自動重試失敗的任務
-
-#### 🚀 K6 效能測試
-- **測試場景**：預設多種測試情境
-- **即時監控**：測試執行時的即時指標
-- **報告生成**：自動生成 HTML 報告
-- **歷史比較**：效能趨勢分析
-
-### 存取管理後台
-
-```bash
-# 開發環境
-http://localhost:3000/admin
-
-# 生產環境（需設定環境變數）
-https://your-domain.com/admin
-```
-
-### 管理員權限設定
-
-```typescript
-// 在資料庫中設定管理員角色
-UPDATE users SET role = 'admin' WHERE email = 'admin@example.com';
-```
-
----
-
 ## 📡 API 文檔
-
-> 📖 **完整 API 文檔**: [docs/api.md](docs/api.md)  
-> 🧪 **API 測試指南**: [docs/api-testing-guide.md](docs/api-testing-guide.md)  
-> 📮 **Postman Collection**: [docs/postman-collection.json](docs/postman-collection.json)
 
 ### API 端點總覽
 
@@ -530,7 +381,6 @@ flowchart TD
 
     API --> Auth["/auth"]
     API --> Services["/services"]
-    API --> Admin["/admin"]
     API --> Health["/health"]
 
     Auth --> Register["POST /register<br/>會員註冊"]
@@ -544,16 +394,14 @@ flowchart TD
     Services --> Update["PUT /:id<br/>更新服務 🔒"]
     Services --> Delete["DELETE /:id<br/>刪除服務 🔒"]
 
-    Admin --> AdminLogin["POST /login<br/>管理員登入 🔐"]
-    Admin --> AdminDashboard["GET /dashboard<br/>儀表板 🔐"]
-    Admin --> AdminLogs["GET /api/logs<br/>日誌 API 🔐"]
-    Admin --> AdminSystem["GET /api/system<br/>系統資訊 🔐"]
-    Admin --> AdminScheduler["GET /api/scheduler<br/>排程 API 🔐"]
-    Admin --> AdminK6["POST /api/k6/run<br/>K6 測試 🔐"]
-
     Health --> Status["GET /<br/>健康狀態"]
     Health --> Version["GET /version<br/>版本資訊"]
 
+    style Register fill:#e8f5e9
+    style Login fill:#e8f5e9
+    style Create fill:#fff3e0
+    style Update fill:#fff3e0
+    style Delete fill:#ffebee
 ```
 
 ### JWT 認證流程
@@ -620,7 +468,7 @@ curl -X POST http://localhost:3000/auth/register \
       "id": "550e8400-e29b-41d4-a716-446655440000",
       "email": "user@example.com",
       "name": "張小明",
-      "createdAt": "2025-09-01T00:00:00.000Z"
+      "createdAt": "2024-01-01T00:00:00.000Z"
     },
     "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
   }
@@ -657,7 +505,7 @@ curl -X GET http://localhost:3000/services \
       "price": 50000,
       "duration": 120,
       "isActive": true,
-      "createdAt": "2025-09-01T00:00:00.000Z"
+      "createdAt": "2024-01-01T00:00:00.000Z"
     }
   ],
   "pagination": {
@@ -691,6 +539,12 @@ flowchart TD
     Error404 --> ErrorResponse
     Error500 --> ErrorResponse
 
+    style Success fill:#c8e6c9
+    style Error400 fill:#ffecb3
+    style Error401 fill:#ffccbc
+    style Error403 fill:#ffccbc
+    style Error404 fill:#ffe0b2
+    style Error500 fill:#ffcdd2
 ```
 
 ### 錯誤回應格式
@@ -708,7 +562,7 @@ flowchart TD
       }
     ]
   },
-  "timestamp": "2025-09-01T00:00:00.000Z",
+  "timestamp": "2024-01-01T00:00:00.000Z",
   "path": "/auth/register"
 }
 ```
@@ -751,19 +605,16 @@ flowchart LR
 
 ### 開發指令
 
-| 指令                      | 說明       | 用途                          |
-| ------------------------- | ---------- | ----------------------------- |
-| `npm run dev`             | 開發模式   | 啟動開發伺服器（熱重載）      |
-| `npm run build`           | 建置專案   | 編譯 TypeScript 為 JavaScript |
-| `npm start`               | 正式環境   | 執行編譯後的程式              |
-| `npm test`                | 執行測試   | 運行所有測試案例              |
-| `npm run test:watch`      | 監視測試   | 自動重新執行測試              |
-| `npm run test:k6`         | K6 測試    | 執行效能測試腳本              |
-| `npm run lint`            | 程式碼檢查 | 檢查程式碼風格                |
-| `npm run lint:fix`        | 自動修正   | 自動修正程式碼問題            |
-| `npm run format`          | 格式化     | 使用 Prettier 格式化          |
-| `npm run scheduler:start` | 啟動排程   | 啟動排程任務服務              |
-| `npm run logs:clean`      | 清理日誌   | 清理過期的日誌檔案            |
+| 指令                 | 說明       | 用途                          |
+| -------------------- | ---------- | ----------------------------- |
+| `npm run dev`        | 開發模式   | 啟動開發伺服器（熱重載）      |
+| `npm run build`      | 建置專案   | 編譯 TypeScript 為 JavaScript |
+| `npm start`          | 正式環境   | 執行編譯後的程式              |
+| `npm test`           | 執行測試   | 運行所有測試案例              |
+| `npm run test:watch` | 監視測試   | 自動重新執行測試              |
+| `npm run lint`       | 程式碼檢查 | 檢查程式碼風格                |
+| `npm run lint:fix`   | 自動修正   | 自動修正程式碼問題            |
+| `npm run format`     | 格式化     | 使用 Prettier 格式化          |
 
 ### Git 工作流程
 
@@ -842,11 +693,7 @@ try {
 
 ---
 
-## 🧪 測試指南
-
-> 📖 **完整測試指南**: [docs/api-testing-guide.md](docs/api-testing-guide.md)
-
-## 測試策略
+## 🧪 測試策略
 
 ### 測試金字塔
 
@@ -861,6 +708,9 @@ flowchart TB
     Unit --> Integration
     Integration --> E2E
 
+    style E2E fill:#ffcdd2
+    style Integration fill:#fff9c4
+    style Unit fill:#c8e6c9
 ```
 
 ### 測試執行流程
@@ -874,6 +724,8 @@ flowchart LR
     Coverage -->|>80%| Pass[✅ 通過]
     Coverage -->|<80%| Fail[❌ 失敗]
 
+    style Pass fill:#c8e6c9
+    style Fail fill:#ffcdd2
 ```
 
 ### 測試指令
@@ -962,12 +814,6 @@ describe('Auth API', () => {
 
 ---
 
-## 📦 部署指南
-
-> 📖 **完整部署指南**: [docs/deployment-guide.md](docs/deployment-guide.md)
-
----
-
 ## 🔄 CI/CD 流程
 
 ### CI/CD Pipeline
@@ -1008,6 +854,9 @@ flowchart LR
     Registry --> Deploy
     Deploy --> Health
 
+    style Dev fill:#e3f2fd
+    style Test fill:#fff9c4
+    style Deploy fill:#c8e6c9
 ```
 
 ### GitHub Actions 設定
@@ -1104,6 +953,9 @@ flowchart TD
     Dev_API --> Stg_API
     Stg_API --> Prod_API
 
+    style Development fill:#e3f2fd
+    style Staging fill:#fff9c4
+    style Production fill:#c8e6c9
 ```
 
 ---
@@ -1310,7 +1162,7 @@ GET /health
 # 回應範例
 {
   "status": "healthy",
-  "timestamp": "2025-09-01T00:00:00.000Z",
+  "timestamp": "2024-01-01T00:00:00.000Z",
   "uptime": 3600,
   "services": {
     "database": "healthy",
@@ -1468,6 +1320,8 @@ flowchart TD
     NpmInstall --> Solved
     CheckEnv --> Solved
 
+    style Start fill:#ffebee
+    style Solved fill:#c8e6c9
 ```
 
 ### 常見錯誤與解決方案
@@ -1553,6 +1407,9 @@ flowchart LR
     PR --> Review[程式碼審查]
     Review --> Merge[合併到主分支]
 
+    style Fork fill:#e3f2fd
+    style Test fill:#fff9c4
+    style Merge fill:#c8e6c9
 ```
 
 ### 提交規範
@@ -1600,6 +1457,7 @@ flowchart TD
     Revise --> Checks
     Approve --> Merge[合併到主分支]
 
+    style Merge fill:#c8e6c9
 ```
 
 ---
@@ -1646,9 +1504,3 @@ flowchart TD
 [回到頂部](#-service-booking-api---服務預約管理系統)
 
 </div>
-
-todo:
-password
-是的，您的想法「讓後端不需要知道使用者真的密碼」是完全可行的。
-傳統的標準解法：SRP (Secure Remote Password Protocol)。
-現代的、未來的趨勢：WebAuthn / Passkeys。
