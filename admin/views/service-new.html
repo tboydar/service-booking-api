@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>新增服務 - Service Booking API</title>
+  <link rel="stylesheet" href="/admin/css/admin.css">
+</head>
+<body>
+  <div class="admin-wrapper">
+    <!-- Sidebar -->
+    <nav class="sidebar">
+      <div class="sidebar-header">
+        <h3>🎯 管理後台</h3>
+      </div>
+      <ul class="sidebar-menu">
+        <li><a href="/admin/dashboard">📊 儀表板</a></li>
+        <li><a href="/admin/system">💻 系統監控</a></li>
+        <li><a href="/admin/logs">📝 日誌管理</a></li>
+        <li><a href="/admin/scheduler">⏰ 排程管理</a></li>
+        <li><a href="/admin/k6-test">🚀 K6 效能測試</a></li>
+        <li><a href="/admin/services" class="active">📦 服務管理</a></li>
+        <li><a href="/admin/users">👥 用戶管理</a></li>
+        <li><a href="#" id="logoutBtn">🚪 登出</a></li>
+      </ul>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <div class="header">
+        <h1>➕ 新增服務</h1>
+        <a href="/admin/services" class="btn btn-secondary">🔙 返回服務列表</a>
+      </div>
+
+      <!-- Service Form -->
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title">📝 服務資訊</h2>
+        </div>
+        <div class="card-body">
+          <form id="serviceForm">
+            <div class="form-grid">
+              <div class="form-group">
+                <label for="serviceName">服務名稱 *</label>
+                <input type="text" id="serviceName" class="form-control" required>
+              </div>
+
+              <div class="form-group">
+                <label for="serviceCategory">服務類別</label>
+                <select id="serviceCategory" class="form-control">
+                  <option value="consulting">諮詢服務</option>
+                  <option value="maintenance">維護服務</option>
+                  <option value="installation">安裝服務</option>
+                  <option value="training">培訓服務</option>
+                  <option value="support">技術支援</option>
+                  <option value="other">其他</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label for="servicePrice">價格 (NT$) *</label>
+                <input type="number" id="servicePrice" class="form-control" min="0" step="1" required>
+              </div>
+
+              <div class="form-group">
+                <label for="serviceDuration">服務時長 (分鐘) *</label>
+                <input type="number" id="serviceDuration" class="form-control" min="15" step="15" required>
+              </div>
+
+              <div class="form-group full-width">
+                <label for="serviceDescription">服務描述</label>
+                <textarea id="serviceDescription" class="form-control" rows="4"
+                         placeholder="請描述此服務的詳細內容、適用對象等..."></textarea>
+              </div>
+
+              <div class="form-group">
+                <label for="serviceLocation">服務地點</label>
+                <select id="serviceLocation" class="form-control">
+                  <option value="onsite">客戶現場</option>
+                  <option value="remote">遠端服務</option>
+                  <option value="office">公司辦公室</option>
+                  <option value="flexible">彈性安排</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label for="maxBookings">每日最大預約數</label>
+                <input type="number" id="maxBookings" class="form-control" min="1" max="50" value="5">
+              </div>
+
+              <div class="form-group">
+                <label for="advanceBooking">提前預約天數</label>
+                <input type="number" id="advanceBooking" class="form-control" min="0" max="365" value="1">
+              </div>
+
+              <div class="form-group">
+                <label for="serviceStatus">服務狀態</label>
+                <select id="serviceStatus" class="form-control">
+                  <option value="true">啟用</option>
+                  <option value="false">停用</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-section">
+              <h3>📅 服務時段設定</h3>
+              <div class="time-slots">
+                <div class="day-schedule" data-day="monday">
+                  <label class="day-label">
+                    <input type="checkbox" class="day-checkbox" checked> 週一
+                  </label>
+                  <input type="time" class="time-start" value="09:00">
+                  <span>至</span>
+                  <input type="time" class="time-end" value="17:00">
+                </div>
+                <div class="day-schedule" data-day="tuesday">
+                  <label class="day-label">
+                    <input type="checkbox" class="day-checkbox" checked> 週二
+                  </label>
+                  <input type="time" class="time-start" value="09:00">
+                  <span>至</span>
+                  <input type="time" class="time-end" value="17:00">
+                </div>
+                <div class="day-schedule" data-day="wednesday">
+                  <label class="day-label">
+                    <input type="checkbox" class="day-checkbox" checked> 週三
+                  </label>
+                  <input type="time" class="time-start" value="09:00">
+                  <span>至</span>
+                  <input type="time" class="time-end" value="17:00">
+                </div>
+                <div class="day-schedule" data-day="thursday">
+                  <label class="day-label">
+                    <input type="checkbox" class="day-checkbox" checked> 週四
+                  </label>
+                  <input type="time" class="time-start" value="09:00">
+                  <span>至</span>
+                  <input type="time" class="time-end" value="17:00">
+                </div>
+                <div class="day-schedule" data-day="friday">
+                  <label class="day-label">
+                    <input type="checkbox" class="day-checkbox" checked> 週五
+                  </label>
+                  <input type="time" class="time-start" value="09:00">
+                  <span>至</span>
+                  <input type="time" class="time-end" value="17:00">
+                </div>
+                <div class="day-schedule" data-day="saturday">
+                  <label class="day-label">
+                    <input type="checkbox" class="day-checkbox"> 週六
+                  </label>
+                  <input type="time" class="time-start" value="09:00" disabled>
+                  <span>至</span>
+                  <input type="time" class="time-end" value="17:00" disabled>
+                </div>
+                <div class="day-schedule" data-day="sunday">
+                  <label class="day-label">
+                    <input type="checkbox" class="day-checkbox"> 週日
+                  </label>
+                  <input type="time" class="time-start" value="09:00" disabled>
+                  <span>至</span>
+                  <input type="time" class="time-end" value="17:00" disabled>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-actions">
+              <button type="button" class="btn btn-secondary" onclick="window.location.href='/admin/services'">取消</button>
+              <button type="submit" class="btn btn-primary">💾 儲存服務</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="/admin/js/admin.js"></script>
+  <script>
+    // Handle day checkbox changes
+    document.addEventListener('DOMContentLoaded', () => {
+      const dayCheckboxes = document.querySelectorAll('.day-checkbox');
+
+      dayCheckboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', function() {
+          const schedule = this.closest('.day-schedule');
+          const timeInputs = schedule.querySelectorAll('input[type="time"]');
+
+          timeInputs.forEach(input => {
+            input.disabled = !this.checked;
+          });
+        });
+      });
+
+      // Form submission
+      document.getElementById('serviceForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        await saveService();
+      });
+
+      // Initialize admin dashboard
+      if (typeof AdminDashboard !== 'undefined') {
+        AdminDashboard.init();
+      }
+    });
+
+    // Save service
+    async function saveService() {
+      try {
+        // Collect form data
+        const serviceData = {
+          name: document.getElementById('serviceName').value,
+          category: document.getElementById('serviceCategory').value,
+          description: document.getElementById('serviceDescription').value,
+          price: parseFloat(document.getElementById('servicePrice').value),
+          duration: parseInt(document.getElementById('serviceDuration').value),
+          location: document.getElementById('serviceLocation').value,
+          maxBookingsPerDay: parseInt(document.getElementById('maxBookings').value),
+          advanceBookingDays: parseInt(document.getElementById('advanceBooking').value),
+          isActive: document.getElementById('serviceStatus').value === 'true',
+          schedule: collectScheduleData()
+        };
+
+        // Validate required fields
+        if (!serviceData.name || !serviceData.price || !serviceData.duration) {
+          alert('請填寫所有必填欄位');
+          return;
+        }
+
+        const token = localStorage.getItem('adminToken');
+        const response = await fetch('/services', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(serviceData)
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to create service');
+        }
+
+        const result = await response.json();
+        if (result.success) {
+          alert('服務已成功建立！');
+          window.location.href = '/admin/services';
+        } else {
+          throw new Error(result.error?.message || 'Unknown error');
+        }
+      } catch (error) {
+        console.error('Error saving service:', error);
+        alert('儲存服務失敗: ' + error.message);
+      }
+    }
+
+    // Collect schedule data
+    function collectScheduleData() {
+      const schedules = {};
+      const daySchedules = document.querySelectorAll('.day-schedule');
+
+      daySchedules.forEach(schedule => {
+        const day = schedule.dataset.day;
+        const checkbox = schedule.querySelector('.day-checkbox');
+        const startTime = schedule.querySelector('.time-start');
+        const endTime = schedule.querySelector('.time-end');
+
+        if (checkbox.checked) {
+          schedules[day] = {
+            enabled: true,
+            startTime: startTime.value,
+            endTime: endTime.value
+          };
+        } else {
+          schedules[day] = {
+            enabled: false
+          };
+        }
+      });
+
+      return schedules;
+    }
+  </script>
+
+  <style>
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+
+    .form-group.full-width {
+      grid-column: 1 / -1;
+    }
+
+    .form-section {
+      margin: 30px 0;
+      padding: 20px;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      background: #f9fafb;
+    }
+
+    .form-section h3 {
+      margin-top: 0;
+      margin-bottom: 20px;
+      color: #374151;
+    }
+
+    .time-slots {
+      display: grid;
+      gap: 15px;
+    }
+
+    .day-schedule {
+      display: grid;
+      grid-template-columns: 100px 80px auto 80px;
+      align-items: center;
+      gap: 10px;
+      padding: 10px;
+      background: white;
+      border-radius: 6px;
+      border: 1px solid #e5e7eb;
+    }
+
+    .day-label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 500;
+      cursor: pointer;
+    }
+
+    .day-checkbox {
+      margin: 0;
+    }
+
+    .time-start,
+    .time-end {
+      padding: 8px;
+      border: 1px solid #d1d5db;
+      border-radius: 4px;
+      font-size: 14px;
+    }
+
+    .time-start:disabled,
+    .time-end:disabled {
+      background: #f3f4f6;
+      color: #9ca3af;
+    }
+
+    .form-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 15px;
+      margin-top: 30px;
+      padding-top: 20px;
+      border-top: 1px solid #e5e7eb;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: 500;
+      color: #374151;
+    }
+
+    .form-control {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #d1d5db;
+      border-radius: 6px;
+      font-size: 14px;
+    }
+
+    .form-control:focus {
+      outline: none;
+      border-color: #3b82f6;
+      box-shadow: 0 0 0 1px #3b82f6;
+    }
+
+    textarea.form-control {
+      resize: vertical;
+      min-height: 100px;
+    }
+  </style>
+</body>
+</html>

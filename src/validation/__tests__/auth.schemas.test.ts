@@ -43,8 +43,8 @@ describe('Authentication Schemas', () => {
       expect(result.success).toBe(false);
       expect(result.errors).toHaveLength(1);
       expect(result.errors).toBeDefined();
-      expect(result.errors![0].field).toBe('email');
-      expect(result.errors![0].message).toBe('Email 格式不正確');
+      expect(result.errors?.[0]?.field).toBe('email');
+      expect(result.errors?.[0]?.message).toBe('Email 格式不正確');
     });
 
     it('應該拒絕過短的密碼', () => {
@@ -62,8 +62,8 @@ describe('Authentication Schemas', () => {
       expect(result.success).toBe(false);
       expect(result.errors).toHaveLength(1);
       if (result.errors) {
-        expect(result.errors[0].field).toBe('password');
-        expect(result.errors[0].message).toBe('密碼長度至少需要 6 個字元');
+        expect(result.errors?.[0]?.field).toBe('password');
+        expect(result.errors?.[0]?.message).toBe('密碼長度至少需要 6 個字元');
       }
     });
 
@@ -82,8 +82,8 @@ describe('Authentication Schemas', () => {
       expect(result.success).toBe(false);
       expect(result.errors).toHaveLength(1);
       if (result.errors) {
-        expect(result.errors[0].field).toBe('name');
-        expect(result.errors[0].message).toBe('姓名長度至少需要 2 個字元');
+        expect(result.errors?.[0]?.field).toBe('name');
+        expect(result.errors?.[0]?.message).toBe('姓名長度至少需要 2 個字元');
       }
     });
 
@@ -140,8 +140,8 @@ describe('Authentication Schemas', () => {
       expect(result.success).toBe(false);
       expect(result.errors).toHaveLength(1);
       if (result.errors) {
-        expect(result.errors[0].field).toBe('password');
-        expect(result.errors[0].message).toBe('密碼為必填欄位');
+        expect(result.errors?.[0]?.field).toBe('password');
+        expect(result.errors?.[0]?.message).toBe('密碼為必填欄位');
       }
     });
   });

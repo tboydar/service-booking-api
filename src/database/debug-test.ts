@@ -16,7 +16,8 @@ const testSequelize = new Sequelize({
 
 console.log('Sequelize instance created:', !!testSequelize);
 
-testSequelize.authenticate()
+testSequelize
+  .authenticate()
   .then(() => {
     console.log('✅ Direct Sequelize connection successful');
     return testSequelize.close();
@@ -24,6 +25,6 @@ testSequelize.authenticate()
   .then(() => {
     console.log('Connection closed');
   })
-  .catch((error) => {
+  .catch(error => {
     console.error('❌ Direct Sequelize connection failed:', error);
   });

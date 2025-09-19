@@ -1,0 +1,87 @@
+version: '3.8'
+
+services:
+  jaeger:
+    image: jaegertracing/all-in-one:1.54
+    container_name: jaeger
+    restart: unless-stopped
+    ports:
+      # Jaeger UI - 用於查看追蹤資料的 Web 介面
+      - "${JAEGER_UI_PORT:-16686}:16686"
+
+      # OpenTelemetry Protocol (OTLP) - 接收 OpenTelemetry 資料
+      - "${JAEGER_OTLP_GRPC_PORT:-4317}:4317"     # OTLP gRPC
+      - "${JAEGER_OTLP_HTTP_PORT:-4318}:4318"     # OTLP HTTP
+
+      # Jaeger native protocols
+      - "${JAEGER_COLLECTOR_HTTP_PORT:-14268}:14268"   # Jaeger collector HTTP
+      - "${JAEGER_COLLECTOR_GRPC_PORT:-14250}:14250"   # Jaeger collector gRPC
+
+      # Jaeger agent protocols (UDP)
+      - "${JAEGER_AGENT_COMPACT_PORT:-6831}:6831/udp"  # Compact thrift protocol
+      - "${JAEGER_AGENT_BINARY_PORT:-6832}:6832/udp"   # Binary thrift protocol
+
+      # Zipkin compatibility (optional)
+      - "${ZIPKIN_PORT:-9411}:9411"
+
+    environment:
+      # 使用 BadgerDB 作為儲存後端 (類似 SQLite 的嵌入式資料庫)
+      - SPAN_STORAGE_TYPE=badger
+
+      # 設定為 false 以啟用資料持久化 (true 則為記憶體模式)
+      - BADGER_EPHEMERAL=false
+
+      # BadgerDB 資料目錄配置
+      - BADGER_DIRECTORY_KEY=/badger/key
+      - BADGER_DIRECTORY_VALUE=/badger/data
+
+      # 啟用 OTLP 接收器 (用於 OpenTelemetry)
+      - COLLECTOR_OTLP_ENABLED=true
+
+      # Zipkin 相容性設定
+      - COLLECTOR_ZIPKIN_HOST_PORT=:9411
+
+      # 日誌級別設定 (debug, info, warn, error)
+      - LOG_LEVEL=${JAEGER_LOG_LEVEL:-info}
+
+      # 查詢服務配置
+      - QUERY_BASE_PATH=/
+      - QUERY_MAX_CLOCK_SKEW_ADJUSTMENT=30s
+
+      # BadgerDB 配置
+      - BADGER_SPAN_STORE_TTL=${BADGER_SPAN_TTL:-168h}  # 資料保留時間，預設 7 天
+
+    volumes:
+      # 掛載本地目錄用於資料持久化
+      - ./data/key:/badger/key:rw
+      - ./data/value:/badger/data:rw
+
+    networks:
+      - jaeger-network
+
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:16687/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+    # 資源限制 (可依據需求調整)
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 1G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+
+networks:
+  jaeger-network:
+    driver: bridge
+    name: jaeger-network
+
+# 資料卷定義 (可選，如果想使用 Docker 管理的卷而非本地目錄)
+# volumes:
+#   jaeger-badger-key:
+#   jaeger-badger-data:

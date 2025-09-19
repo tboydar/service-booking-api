@@ -63,8 +63,8 @@ describe('Service Schemas', () => {
       expect(result.success).toBe(false);
       expect(result.errors).toHaveLength(1);
       if (result.errors) {
-        expect(result.errors[0].field).toBe('name');
-        expect(result.errors[0].message).toBe('服務名稱不能為空');
+        expect(result.errors?.[0]?.field).toBe('name');
+        expect(result.errors?.[0]?.message).toBe('服務名稱不能為空');
       }
     });
 
@@ -82,8 +82,8 @@ describe('Service Schemas', () => {
       expect(result.success).toBe(false);
       expect(result.errors).toHaveLength(1);
       if (result.errors) {
-        expect(result.errors[0].field).toBe('price');
-        expect(result.errors[0].message).toBe('價格不能為負數');
+        expect(result.errors?.[0]?.field).toBe('price');
+        expect(result.errors?.[0]?.message).toBe('價格不能為負數');
       }
     });
 
@@ -101,8 +101,8 @@ describe('Service Schemas', () => {
       expect(result.success).toBe(false);
       expect(result.errors).toHaveLength(1);
       if (result.errors) {
-        expect(result.errors[0].field).toBe('price');
-        expect(result.errors[0].message).toBe('價格必須為整數');
+        expect(result.errors?.[0]?.field).toBe('price');
+        expect(result.errors?.[0]?.message).toBe('價格必須為整數');
       }
     });
 
@@ -167,7 +167,9 @@ describe('Service Schemas', () => {
       expect(result.success).toBe(false);
       expect(result.errors).toHaveLength(1);
       if (result.errors) {
-        expect(result.errors[0].message).toBe('至少需要提供一個要更新的欄位');
+        expect(result.errors?.[0]?.message).toBe(
+          '至少需要提供一個要更新的欄位'
+        );
       }
     });
 
@@ -216,8 +218,8 @@ describe('Service Schemas', () => {
       expect(result.success).toBe(false);
       expect(result.errors).toHaveLength(1);
       if (result.errors) {
-        expect(result.errors[0].field).toBe('id');
-        expect(result.errors[0].message).toBe('ID 格式不正確');
+        expect(result.errors?.[0]?.field).toBe('id');
+        expect(result.errors?.[0]?.message).toBe('ID 格式不正確');
       }
     });
 
@@ -232,8 +234,8 @@ describe('Service Schemas', () => {
       expect(result.success).toBe(false);
       expect(result.errors).toHaveLength(1);
       if (result.errors) {
-        expect(result.errors[0].field).toBe('id');
-        expect(result.errors[0].message).toBe('ID 為必填欄位');
+        expect(result.errors?.[0]?.field).toBe('id');
+        expect(result.errors?.[0]?.message).toBe('ID 為必填欄位');
       }
     });
   });

@@ -7,23 +7,22 @@ import { databaseManager } from './index';
 export const testDatabaseConnection = async (): Promise<void> => {
   try {
     console.log('Testing database connection...');
-    
+
     // Initialize database connection
     await databaseManager.initialize();
-    
+
     // Test connection
     const isConnected = await databaseManager.testConnection();
-    
+
     if (isConnected) {
       console.log('✅ Database connection test passed');
     } else {
       console.log('❌ Database connection test failed');
       throw new Error('Database connection test failed');
     }
-    
+
     // Close connection
     await databaseManager.close();
-    
   } catch (error) {
     console.error('Database connection test error:', error);
     throw error;
@@ -37,7 +36,7 @@ if (require.main === module) {
       console.log('Database connection test completed successfully');
       process.exit(0);
     })
-    .catch((error) => {
+    .catch(error => {
       console.error('Database connection test failed:', error);
       process.exit(1);
     });

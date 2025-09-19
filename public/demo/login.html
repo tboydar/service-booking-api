@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>登入展示 - Google reCAPTCHA v2</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+  <style>
+    body {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Microsoft JhengHei', 'Segoe UI', sans-serif;
+    }
+    .login-container {
+      background: white;
+      border-radius: 20px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      padding: 40px;
+      max-width: 450px;
+      width: 100%;
+    }
+    .form-title {
+      color: #333;
+      margin-bottom: 30px;
+      text-align: center;
+      font-weight: bold;
+    }
+    .form-control:focus {
+      border-color: #667eea;
+      box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+    }
+    .btn-login {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border: none;
+      color: white;
+      padding: 12px 30px;
+      font-size: 16px;
+      font-weight: bold;
+      border-radius: 50px;
+      width: 100%;
+      transition: transform 0.3s;
+    }
+    .btn-login:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+    }
+    .btn-login:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+    .g-recaptcha {
+      margin: 20px 0;
+      display: flex;
+      justify-content: center;
+    }
+    .alert {
+      border-radius: 10px;
+      animation: slideDown 0.5s ease;
+    }
+    @keyframes slideDown {
+      from {
+        opacity: 0;
+        transform: translateY(-20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    .demo-note {
+      background: #f8f9fa;
+      border-left: 4px solid #667eea;
+      padding: 15px;
+      margin-bottom: 20px;
+      border-radius: 5px;
+    }
+    .demo-note h6 {
+      color: #667eea;
+      margin-bottom: 10px;
+    }
+    .test-accounts {
+      background: #e8f4f8;
+      border-radius: 10px;
+      padding: 15px;
+      margin-bottom: 20px;
+    }
+    .test-accounts h6 {
+      color: #0d6efd;
+      margin-bottom: 10px;
+    }
+    .copy-btn {
+      cursor: pointer;
+      padding: 2px 8px;
+      border-radius: 4px;
+      background: #f0f0f0;
+      border: 1px solid #ddd;
+      font-size: 12px;
+      margin-left: 10px;
+    }
+    .copy-btn:hover {
+      background: #e0e0e0;
+    }
+    .form-check-label {
+      cursor: pointer;
+      user-select: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="login-container">
+    <h2 class="form-title">🔑 會員登入 - reCAPTCHA 展示</h2>
+
+    <div class="demo-note">
+      <h6>💡 展示說明</h6>
+      <small>
+        這是 Google reCAPTCHA v2 登入保護展示。<br>
+        請使用測試帳號並完成人機驗證來體驗登入流程。
+      </small>
+    </div>
+
+    <div class="test-accounts">
+      <h6>📧 測試帳號</h6>
+      <div class="mb-2">
+        <small>
+          帳號：<code>admin@example.com</code>
+          <button class="copy-btn" onclick="copyToClipboard('admin@example.com', 'email')">複製</button>
+        </small>
+      </div>
+      <div>
+        <small>
+          密碼：<code>Admin123!</code>
+          <button class="copy-btn" onclick="copyToClipboard('Admin123!', 'password')">複製</button>
+        </small>
+      </div>
+    </div>
+
+    <div id="alertContainer"></div>
+
+    <form id="loginForm">
+      <div class="mb-3">
+        <label for="email" class="form-label">電子郵件</label>
+        <input type="email" class="form-control" id="email" required
+               placeholder="請輸入電子郵件" value="">
+        <div class="invalid-feedback">
+          請輸入有效的電子郵件地址
+        </div>
+      </div>
+
+      <div class="mb-3">
+        <label for="password" class="form-label">密碼</label>
+        <input type="password" class="form-control" id="password" required
+               placeholder="請輸入密碼" value="">
+        <div class="invalid-feedback">
+          請輸入密碼
+        </div>
+      </div>
+
+      <div class="form-check mb-3">
+        <input class="form-check-input" type="checkbox" id="rememberMe">
+        <label class="form-check-label" for="rememberMe">
+          記住我
+        </label>
+      </div>
+
+      <!-- Google reCAPTCHA v2 -->
+      <div class="g-recaptcha"
+           data-sitekey="6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI"
+           data-theme="light"
+           data-size="normal"
+           data-callback="onRecaptchaSuccess"
+           data-expired-callback="onRecaptchaExpired">
+      </div>
+
+      <button type="submit" class="btn btn-login" id="submitBtn" disabled>
+        登入
+      </button>
+
+      <div class="text-center mt-3">
+        <small class="text-muted">
+          還沒有帳號？<a href="/demo/register.html">立即註冊</a>
+        </small>
+      </div>
+
+      <div class="text-center mt-2">
+        <small class="text-muted">
+          <a href="/demo">返回展示首頁</a>
+        </small>
+      </div>
+    </form>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    let recaptchaVerified = false;
+
+    // reCAPTCHA 成功回調
+    function onRecaptchaSuccess(token) {
+      recaptchaVerified = true;
+      document.getElementById('submitBtn').disabled = false;
+      showAlert('✅ reCAPTCHA 驗證成功！', 'success');
+    }
+
+    // reCAPTCHA 過期回調
+    function onRecaptchaExpired() {
+      recaptchaVerified = false;
+      document.getElementById('submitBtn').disabled = true;
+      showAlert('⏱️ reCAPTCHA 已過期，請重新驗證', 'warning');
+    }
+
+    // 顯示提示訊息
+    function showAlert(message, type = 'info') {
+      const alertContainer = document.getElementById('alertContainer');
+      const alertDiv = document.createElement('div');
+      alertDiv.className = `alert alert-${type} alert-dismissible fade show`;
+      alertDiv.innerHTML = `
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+      `;
+      alertContainer.innerHTML = '';
+      alertContainer.appendChild(alertDiv);
+
+      // 5秒後自動消失
+      setTimeout(() => {
+        alertDiv.remove();
+      }, 5000);
+    }
+
+    // 複製到剪貼簿
+    function copyToClipboard(text, field) {
+      navigator.clipboard.writeText(text).then(() => {
+        // 自動填入對應欄位
+        if (field === 'email') {
+          document.getElementById('email').value = text;
+        } else if (field === 'password') {
+          document.getElementById('password').value = text;
+        }
+        showAlert(`已複製並填入${field === 'email' ? '帳號' : '密碼'}`, 'info');
+      }).catch(() => {
+        showAlert('複製失敗，請手動輸入', 'warning');
+      });
+    }
+
+    // 表單提交處理
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      if (!recaptchaVerified) {
+        showAlert('⚠️ 請先完成人機驗證', 'danger');
+        return;
+      }
+
+      // 取得 reCAPTCHA token
+      const recaptchaToken = grecaptcha.getResponse();
+
+      // 準備登入資料
+      const formData = {
+        email: document.getElementById('email').value,
+        password: document.getElementById('password').value,
+        'g-recaptcha-response': recaptchaToken
+      };
+
+      // 顯示載入狀態
+      const submitBtn = document.getElementById('submitBtn');
+      const originalText = submitBtn.textContent;
+      submitBtn.disabled = true;
+      submitBtn.textContent = '登入中...';
+
+      try {
+        // 發送登入請求
+        const response = await fetch('http://localhost:3000/auth/login', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(formData)
+        });
+
+        const result = await response.json();
+
+        if (response.ok && result.success) {
+          showAlert('🎉 登入成功！正在跳轉...', 'success');
+
+          // 儲存 token（如果需要）
+          if (result.data && result.data.token) {
+            localStorage.setItem('authToken', result.data.token);
+            if (document.getElementById('rememberMe').checked) {
+              localStorage.setItem('userEmail', formData.email);
+            }
+          }
+
+          // 2秒後跳轉到展示首頁
+          setTimeout(() => {
+            window.location.href = '/demo/success.html';
+          }, 2000);
+        } else {
+          const errorMsg = result.error?.message || '登入失敗，請檢查帳號密碼';
+          showAlert(`❌ ${errorMsg}`, 'danger');
+
+          // 重置 reCAPTCHA
+          grecaptcha.reset();
+          recaptchaVerified = false;
+          submitBtn.disabled = true;
+        }
+      } catch (error) {
+        showAlert('❌ 網路錯誤，請檢查連線', 'danger');
+        console.error('Login error:', error);
+        grecaptcha.reset();
+        recaptchaVerified = false;
+        submitBtn.disabled = true;
+      } finally {
+        submitBtn.textContent = originalText;
+      }
+    });
+
+    // 頁面載入時檢查記住的帳號
+    window.addEventListener('DOMContentLoaded', () => {
+      const savedEmail = localStorage.getItem('userEmail');
+      if (savedEmail) {
+        document.getElementById('email').value = savedEmail;
+        document.getElementById('rememberMe').checked = true;
+      }
+    });
+  </script>
+</body>
+</html>

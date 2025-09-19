@@ -8,11 +8,12 @@ const sequelize = new Sequelize({
 
 console.log('Sequelize instance:', !!sequelize);
 
-sequelize.authenticate()
+sequelize
+  .authenticate()
   .then(() => {
     console.log('✅ Connection successful');
     return sequelize.close();
   })
-  .catch((error) => {
+  .catch(error => {
     console.error('❌ Connection failed:', error);
   });

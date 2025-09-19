@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Google reCAPTCHA v2 展示中心</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      font-family: 'Microsoft JhengHei', 'Segoe UI', sans-serif;
+      padding: 40px 20px;
+    }
+    .demo-header {
+      text-align: center;
+      color: white;
+      margin-bottom: 50px;
+    }
+    .demo-header h1 {
+      font-size: 48px;
+      font-weight: bold;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+      margin-bottom: 20px;
+    }
+    .demo-header p {
+      font-size: 20px;
+      opacity: 0.9;
+    }
+    .demo-grid {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 30px;
+    }
+    .demo-card {
+      background: white;
+      border-radius: 20px;
+      padding: 30px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+      transition: transform 0.3s, box-shadow 0.3s;
+      cursor: pointer;
+      text-decoration: none;
+      color: inherit;
+    }
+    .demo-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 15px 50px rgba(0,0,0,0.3);
+      text-decoration: none;
+      color: inherit;
+    }
+    .demo-icon {
+      font-size: 48px;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+    .demo-title {
+      font-size: 24px;
+      font-weight: bold;
+      color: #333;
+      margin-bottom: 15px;
+      text-align: center;
+    }
+    .demo-description {
+      color: #666;
+      font-size: 14px;
+      line-height: 1.6;
+      text-align: center;
+    }
+    .feature-list {
+      list-style: none;
+      padding: 0;
+      margin-top: 15px;
+    }
+    .feature-list li {
+      padding: 5px 0;
+      font-size: 13px;
+      color: #777;
+    }
+    .feature-list li:before {
+      content: "✓ ";
+      color: #667eea;
+      font-weight: bold;
+      margin-right: 8px;
+    }
+    .info-section {
+      background: white;
+      border-radius: 20px;
+      padding: 40px;
+      margin-top: 50px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+      max-width: 1200px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .info-title {
+      color: #333;
+      font-size: 28px;
+      font-weight: bold;
+      margin-bottom: 30px;
+      text-align: center;
+    }
+    .info-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 30px;
+      margin-top: 30px;
+    }
+    .info-item {
+      text-align: center;
+      padding: 20px;
+      background: #f8f9fa;
+      border-radius: 10px;
+    }
+    .info-item-icon {
+      font-size: 36px;
+      margin-bottom: 15px;
+      color: #667eea;
+    }
+    .info-item-title {
+      font-weight: bold;
+      color: #333;
+      margin-bottom: 10px;
+    }
+    .info-item-text {
+      font-size: 14px;
+      color: #666;
+    }
+    .test-info {
+      background: #e8f4f8;
+      border-radius: 15px;
+      padding: 25px;
+      margin-top: 30px;
+      border: 2px solid #0d6efd;
+    }
+    .test-info h5 {
+      color: #0d6efd;
+      margin-bottom: 15px;
+    }
+    .code-block {
+      background: #f5f5f5;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      padding: 10px;
+      font-family: monospace;
+      margin: 10px 0;
+    }
+    .badge-new {
+      background: #ff4444;
+      color: white;
+      padding: 3px 8px;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: bold;
+      margin-left: 10px;
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+      0% {
+        box-shadow: 0 0 0 0 rgba(255, 68, 68, 0.7);
+      }
+      70% {
+        box-shadow: 0 0 0 10px rgba(255, 68, 68, 0);
+      }
+      100% {
+        box-shadow: 0 0 0 0 rgba(255, 68, 68, 0);
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="demo-header">
+    <h1>🛡️ Google reCAPTCHA v2 展示中心</h1>
+    <p>體驗完整的人機驗證防護機制</p>
+  </div>
+
+  <div class="demo-grid">
+    <a href="/demo/register.html" class="demo-card">
+      <div class="demo-icon">📝</div>
+      <div class="demo-title">會員註冊<span class="badge-new">NEW</span></div>
+      <div class="demo-description">
+        體驗帶有 reCAPTCHA 保護的註冊流程
+      </div>
+      <ul class="feature-list">
+        <li>表單驗證</li>
+        <li>reCAPTCHA v2 勾選框</li>
+        <li>即時錯誤提示</li>
+        <li>成功動畫效果</li>
+      </ul>
+    </a>
+
+    <a href="/demo/login.html" class="demo-card">
+      <div class="demo-icon">🔑</div>
+      <div class="demo-title">會員登入</div>
+      <div class="demo-description">
+        防止暴力破解的安全登入系統
+      </div>
+      <ul class="feature-list">
+        <li>測試帳號提供</li>
+        <li>記住我功能</li>
+        <li>reCAPTCHA 保護</li>
+        <li>錯誤處理展示</li>
+      </ul>
+    </a>
+
+    <a href="/admin/login" class="demo-card">
+      <div class="demo-icon">👨‍💼</div>
+      <div class="demo-title">管理後台</div>
+      <div class="demo-description">
+        管理員登入界面與 reCAPTCHA 整合
+      </div>
+      <ul class="feature-list">
+        <li>管理員專用界面</li>
+        <li>增強安全性</li>
+        <li>系統管理功能</li>
+        <li>資料統計展示</li>
+      </ul>
+    </a>
+
+    <a href="/demo/api-test.html" class="demo-card">
+      <div class="demo-icon">🔧</div>
+      <div class="demo-title">API 測試工具</div>
+      <div class="demo-description">
+        測試 API 端點的 reCAPTCHA 驗證
+      </div>
+      <ul class="feature-list">
+        <li>Postman 整合</li>
+        <li>Token 生成測試</li>
+        <li>錯誤回應展示</li>
+        <li>API 文件</li>
+      </ul>
+    </a>
+  </div>
+
+  <div class="info-section">
+    <h2 class="info-title">🌟 reCAPTCHA v2 特色功能</h2>
+
+    <div class="info-grid">
+      <div class="info-item">
+        <div class="info-item-icon">🤖</div>
+        <div class="info-item-title">防機器人攻擊</div>
+        <div class="info-item-text">有效阻擋自動化程式和機器人</div>
+      </div>
+
+      <div class="info-item">
+        <div class="info-item-icon">👁️</div>
+        <div class="info-item-title">視覺化驗證</div>
+        <div class="info-item-text">清楚的「我不是機器人」勾選框</div>
+      </div>
+
+      <div class="info-item">
+        <div class="info-item-icon">🖼️</div>
+        <div class="info-item-title">圖片挑戰</div>
+        <div class="info-item-text">可能觸發圖片選擇增加安全性</div>
+      </div>
+
+      <div class="info-item">
+        <div class="info-item-icon">🌍</div>
+        <div class="info-item-title">全球支援</div>
+        <div class="info-item-text">支援多國語言自動適應</div>
+      </div>
+    </div>
+
+    <div class="test-info">
+      <h5>📋 測試資訊</h5>
+      <p><strong>測試 Site Key：</strong></p>
+      <div class="code-block">6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI</div>
+
+      <p><strong>測試 Secret Key：</strong></p>
+      <div class="code-block">6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe</div>
+
+      <p class="mt-3">
+        <small class="text-muted">
+          ⚠️ 這些是 Google 提供的測試金鑰，僅供開發測試使用。<br>
+          生產環境請使用正式申請的金鑰。
+        </small>
+      </p>
+    </div>
+  </div>
+
+  <div class="text-center mt-5">
+    <p class="text-white">
+      © 2025 Service Booking API - reCAPTCHA Demo
+    </p>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

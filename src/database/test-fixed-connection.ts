@@ -4,7 +4,7 @@ async function testFixedConnection(): Promise<void> {
   console.log('Testing fixed connection...');
 
   try {
-    const { databaseConnection } = await import('./connection-fixed');
+    const { databaseConnection } = await import('./connection');
 
     const status = await databaseConnection.testConnection();
     console.log('Connection status:', status);

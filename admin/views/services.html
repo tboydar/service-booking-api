@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>服務管理 - Service Booking API</title>
+  <link rel="stylesheet" href="/admin/css/admin.css">
+</head>
+<body>
+  <div class="admin-wrapper">
+    <!-- Sidebar -->
+    <nav class="sidebar">
+      <div class="sidebar-header">
+        <h3>🎯 管理後台</h3>
+      </div>
+      <ul class="sidebar-menu">
+        <li><a href="/admin/dashboard">📊 儀表板</a></li>
+        <li><a href="/admin/system">💻 系統監控</a></li>
+        <li><a href="/admin/logs">📝 日誌管理</a></li>
+        <li><a href="/admin/scheduler">⏰ 排程管理</a></li>
+        <li><a href="/admin/k6-test">🚀 K6 效能測試</a></li>
+        <li><a href="/admin/services" class="active">📦 服務管理</a></li>
+        <li><a href="/admin/users">👥 用戶管理</a></li>
+        <li><a href="#" id="logoutBtn">🚪 登出</a></li>
+      </ul>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <div class="header">
+        <h1>📦 服務管理</h1>
+        <button onclick="window.location.href='/admin/services/new'" class="btn btn-primary">➕ 新增服務</button>
+      </div>
+
+      <!-- Service Statistics -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <h3>📊 總服務數</h3>
+          <p class="stat-value" id="totalServices">0</p>
+        </div>
+        <div class="stat-card success">
+          <h3>✅ 已啟用</h3>
+          <p class="stat-value" id="activeServices">0</p>
+        </div>
+        <div class="stat-card warning">
+          <h3>⏸️ 已停用</h3>
+          <p class="stat-value" id="inactiveServices">0</p>
+        </div>
+        <div class="stat-card">
+          <h3>📅 本月預約</h3>
+          <p class="stat-value" id="monthlyBookings">0</p>
+        </div>
+      </div>
+
+      <!-- Services List -->
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title">📋 服務列表</h2>
+        </div>
+        <div class="card-body">
+          <div class="table-container">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>名稱</th>
+                  <th>描述</th>
+                  <th>價格</th>
+                  <th>時長</th>
+                  <th>狀態</th>
+                  <th>創建時間</th>
+                  <th>操作</th>
+                </tr>
+              </thead>
+              <tbody id="servicesTableBody">
+                <tr>
+                  <td colspan="8" class="text-center">載入服務中...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="/admin/js/admin.js"></script>
+  <script>
+    let services = [];
+
+    // Load services
+    async function loadServices() {
+      try {
+        const token = localStorage.getItem('adminToken');
+        const response = await fetch('/services', {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to load services');
+        }
+
+        const result = await response.json();
+        if (result.success) {
+          services = result.data || [];
+          displayServices();
+          updateStatistics();
+        }
+      } catch (error) {
+        console.error('Error loading services:', error);
+        document.getElementById('servicesTableBody').innerHTML =
+          '<tr><td colspan="8" class="text-center error">無法載入服務列表</td></tr>';
+      }
+    }
+
+    // Display services
+    function displayServices() {
+      const tbody = document.getElementById('servicesTableBody');
+
+      if (services.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="8" class="text-center">目前沒有服務</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = services.map(service => `
+        <tr>
+          <td>${service.id}</td>
+          <td>${escapeHtml(service.name)}</td>
+          <td>${escapeHtml(service.description || '').substring(0, 50)}${service.description && service.description.length > 50 ? '...' : ''}</td>
+          <td>$${service.price || 0}</td>
+          <td>${service.duration || 0} 分鐘</td>
+          <td>
+            <span class="badge ${service.isActive ? 'badge-success' : 'badge-warning'}">
+              ${service.isActive ? '已啟用' : '已停用'}
+            </span>
+          </td>
+          <td>${new Date(service.createdAt).toLocaleDateString('zh-TW')}</td>
+          <td>
+            <div class="action-buttons">
+              <button class="btn btn-sm" onclick="editService('${service.id}')">✏️ 編輯</button>
+              <button class="btn btn-sm ${service.isActive ? 'btn-warning' : 'btn-success'}"
+                      onclick="toggleService('${service.id}', ${!service.isActive})">
+                ${service.isActive ? '停用' : '啟用'}
+              </button>
+              <button class="btn btn-sm btn-danger" onclick="deleteService('${service.id}')">🗑️ 刪除</button>
+            </div>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    // Update statistics
+    function updateStatistics() {
+      const stats = {
+        total: services.length,
+        active: services.filter(s => s.isActive).length,
+        inactive: services.filter(s => !s.isActive).length
+      };
+
+      document.getElementById('totalServices').textContent = stats.total;
+      document.getElementById('activeServices').textContent = stats.active;
+      document.getElementById('inactiveServices').textContent = stats.inactive;
+      document.getElementById('monthlyBookings').textContent = '0'; // 模擬數據
+    }
+
+    // Edit service
+    function editService(serviceId) {
+      window.location.href = `/admin/services/edit/${serviceId}`;
+    }
+
+    // Toggle service status
+    async function toggleService(serviceId, isActive) {
+      try {
+        const token = localStorage.getItem('adminToken');
+        const response = await fetch(`/services/${serviceId}`, {
+          method: 'PUT',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ isActive })
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to update service status');
+        }
+
+        loadServices();
+        alert(`服務已${isActive ? '啟用' : '停用'}`);
+      } catch (error) {
+        console.error('Error toggling service:', error);
+        alert('無法更新服務狀態');
+      }
+    }
+
+    // Delete service
+    async function deleteService(serviceId) {
+      if (!confirm('確定要刪除此服務嗎？此操作無法復原。')) {
+        return;
+      }
+
+      try {
+        const token = localStorage.getItem('adminToken');
+        const response = await fetch(`/services/${serviceId}`, {
+          method: 'DELETE',
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to delete service');
+        }
+
+        loadServices();
+        alert('服務已刪除');
+      } catch (error) {
+        console.error('Error deleting service:', error);
+        alert('無法刪除服務');
+      }
+    }
+
+    // Escape HTML
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', () => {
+      loadServices();
+
+      // Initialize admin dashboard
+      if (typeof AdminDashboard !== 'undefined') {
+        AdminDashboard.init();
+      }
+    });
+  </script>
+
+  <style>
+    .table-container {
+      overflow-x: auto;
+    }
+
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .data-table th,
+    .data-table td {
+      padding: 12px;
+      text-align: left;
+      border-bottom: 1px solid #e5e7eb;
+    }
+
+    .data-table th {
+      background: #f9fafb;
+      font-weight: 600;
+      color: #374151;
+    }
+
+    .action-buttons {
+      display: flex;
+      gap: 5px;
+      flex-wrap: wrap;
+    }
+
+    .badge {
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .badge-success {
+      background: #10b981;
+      color: white;
+    }
+
+    .badge-warning {
+      background: #f59e0b;
+      color: white;
+    }
+
+    .text-center {
+      text-align: center;
+    }
+
+    .error {
+      color: #dc2626;
+    }
+
+    .stat-card.success {
+      background: #d1fae5;
+    }
+
+    .stat-card.warning {
+      background: #fef3c7;
+    }
+  </style>
+</body>
+</html>

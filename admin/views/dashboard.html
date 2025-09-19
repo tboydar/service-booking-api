@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>管理儀表板 - Service Booking API</title>
+  <link rel="stylesheet" href="/admin/css/admin.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="/socket.io/socket.io.js"></script>
+</head>
+<body>
+  <div class="admin-wrapper">
+    <!-- Sidebar -->
+    <nav class="sidebar">
+      <div class="sidebar-header">
+        <h3>🎯 管理後台</h3>
+      </div>
+      <ul class="sidebar-menu">
+        <li>
+          <a href="/admin/dashboard" class="active">
+            <i>📊</i> 儀表板
+          </a>
+        </li>
+        <li>
+          <a href="/admin/system">
+            <i>💻</i> 系統監控
+          </a>
+        </li>
+        <li>
+          <a href="/admin/logs">
+            <i>📝</i> 日誌管理
+          </a>
+        </li>
+        <li>
+          <a href="/admin/scheduler">
+            <i>⏰</i> 排程管理
+          </a>
+        </li>
+        <li>
+          <a href="/admin/k6-test">
+            <i>🚀</i> K6 效能測試
+          </a>
+        </li>
+        <li>
+          <a href="/admin/services">
+            <i>📦</i> 服務管理
+          </a>
+        </li>
+        <li>
+          <a href="/admin/users">
+            <i>👥</i> 用戶管理
+          </a>
+        </li>
+        <li>
+          <a href="#" id="logoutBtn">
+            <i>🚪</i> 登出
+          </a>
+        </li>
+      </ul>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <!-- Header -->
+      <div class="header">
+        <h1>儀表板總覽</h1>
+        <div class="user-info">
+          <span class="text-muted">管理員</span>
+          <button id="sidebarToggle" class="btn btn-secondary">☰</button>
+        </div>
+      </div>
+
+      <!-- Stats Grid -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-value" id="totalUsers">0</div>
+          <div class="stat-label">總用戶數</div>
+        </div>
+        <div class="stat-card success">
+          <div class="stat-value" id="totalServices">0</div>
+          <div class="stat-label">服務數量</div>
+        </div>
+        <div class="stat-card warning">
+          <div class="stat-value" id="todayAPICalls">0</div>
+          <div class="stat-label">今日 API 呼叫</div>
+        </div>
+        <div class="stat-card danger">
+          <div class="stat-value" id="errorCount">0</div>
+          <div class="stat-label">錯誤數量</div>
+        </div>
+      </div>
+
+      <!-- System Resources -->
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title">系統資源使用狀況</h2>
+        </div>
+        <div class="card-body">
+          <div class="mb-3">
+            <div class="d-flex justify-content-between mb-1">
+              <span>CPU 使用率</span>
+              <span id="cpuUsage">0%</span>
+            </div>
+            <div class="progress">
+              <div class="progress-bar" id="cpuProgress" style="width: 0%"></div>
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <div class="d-flex justify-content-between mb-1">
+              <span>記憶體使用</span>
+              <span id="memUsage">0GB / 0GB</span>
+            </div>
+            <div class="progress">
+              <div class="progress-bar" id="memProgress" style="width: 0%"></div>
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <div class="d-flex justify-content-between mb-1">
+              <span>磁碟空間</span>
+              <span id="diskUsage">0GB / 0GB</span>
+            </div>
+            <div class="progress">
+              <div class="progress-bar" id="diskProgress" style="width: 0%"></div>
+            </div>
+          </div>
+
+          <div class="mt-3">
+            <canvas id="systemChart" height="200"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- API Usage Chart -->
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title">API 使用統計</h2>
+        </div>
+        <div class="card-body">
+          <canvas id="apiChart" height="150"></canvas>
+        </div>
+      </div>
+
+      <!-- Recent Activities -->
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title">最近活動</h2>
+        </div>
+        <div class="card-body">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>時間</th>
+                <th>使用者</th>
+                <th>動作</th>
+                <th>狀態</th>
+              </tr>
+            </thead>
+            <tbody id="recentActivities">
+              <!-- Dynamic content -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Quick Actions -->
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title">快速操作</h2>
+        </div>
+        <div class="card-body">
+          <div class="btn-group">
+            <button class="btn btn-primary" onclick="window.location.href='/admin/services/new'">
+              ➕ 新增服務
+            </button>
+            <button class="btn btn-success" onclick="AdminDashboard.runK6Test('smoke')">
+              🚀 執行煙霧測試
+            </button>
+            <button class="btn btn-warning" onclick="AdminDashboard.exportLogs()">
+              📥 匯出日誌
+            </button>
+            <button class="btn btn-danger" onclick="AdminDashboard.clearCache()">
+              🗑️ 清除快取
+            </button>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Notification Container -->
+  <div id="notificationContainer" style="position: fixed; top: 20px; right: 20px; z-index: 9999;"></div>
+
+  <script src="/admin/js/admin.js"></script>
+  <script>
+    // Initialize dashboard with statistics
+    document.addEventListener('DOMContentLoaded', async () => {
+      // Get token from localStorage for API calls
+      const token = localStorage.getItem('adminToken');
+      if (!token) {
+        // Token might be in cookie, try to continue
+        console.log('Token not in localStorage, will rely on cookie authentication');
+      }
+
+      // Load dashboard statistics
+      try {
+        const response = await fetch('/admin/api/dashboard/stats', {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+
+        if (response.status === 401) {
+          localStorage.removeItem('adminToken');
+          window.location.href = '/admin/login';
+          return;
+        }
+
+        const data = await response.json();
+        if (data.success) {
+          document.getElementById('totalUsers').textContent = data.data.users || '0';
+          document.getElementById('totalServices').textContent = data.data.services || '0';
+          document.getElementById('todayAPICalls').textContent = data.data.apiCalls || '0';
+          document.getElementById('errorCount').textContent = data.data.errors || '0';
+
+          // Load recent activities
+          if (data.data.recentActivities) {
+            const tbody = document.getElementById('recentActivities');
+            tbody.innerHTML = data.data.recentActivities.map(activity => `
+              <tr>
+                <td>${new Date(activity.timestamp).toLocaleString()}</td>
+                <td>${activity.user}</td>
+                <td>${activity.action}</td>
+                <td><span class="badge badge-${activity.status === 'success' ? 'success' : 'danger'}">${activity.status}</span></td>
+              </tr>
+            `).join('');
+          }
+        }
+      } catch (error) {
+        console.error('Failed to load dashboard stats:', error);
+      }
+    });
+  </script>
+</body>
+</html>
