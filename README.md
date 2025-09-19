@@ -37,34 +37,12 @@
 
 ### 核心功能
 
-```mermaid
-graph TD
-    A[Service Booking API] --> B[會員系統]
-    A --> C[服務管理]
-    A --> D[資料管理]
-    A --> E[系統功能]
-
-    B --> B1[註冊功能]
-    B --> B2[登入驗證]
-    B --> B3[JWT Token]
-    B --> B4[密碼加密]
-
-    C --> C1[服務列表]
-    C --> C2[服務詳情]
-    C --> C3[新增服務]
-    C --> C4[更新服務]
-    C --> C5[刪除服務]
-
-    D --> D1[SQLite 資料庫]
-    D --> D2[Sequelize ORM]
-    D --> D3[資料遷移]
-    D --> D4[種子資料]
-
-    E --> E1[輸入驗證]
-    E --> E2[錯誤處理]
-    E --> E3[日誌記錄]
-    E --> E4[健康檢查]
-```
+| 功能分類     | 主要功能                                         |
+| :----------- | :----------------------------------------------- |
+| **會員系統** | 註冊功能、登入驗證、JWT Token、密碼加密          |
+| **服務管理** | 服務列表、服務詳情、新增服務、更新服務、刪除服務 |
+| **資料管理** | SQLite 資料庫、Sequelize ORM、資料遷移、種子資料 |
+| **系統功能** | 輸入驗證、錯誤處理、日誌記錄、健康檢查           |
 
 ### 技術特色
 
@@ -1256,30 +1234,13 @@ journey
 
 ### 推薦學習資源
 
-```mermaid
-mindmap
-  root((學習資源))
-    線上課程
-      Udemy
-      Coursera
-      YouTube
-    官方文檔
-      Node.js Docs
-      TypeScript Handbook
-      Koa Guide
-    實戰專案
-      GitHub
-      開源貢獻
-      個人專案
-    社群資源
-      Stack Overflow
-      Reddit
-      Discord
-    書籍推薦
-      Node.js 設計模式
-      TypeScript 程式設計
-      Web API 設計
-```
+| 類別         | 資源                                                |
+| :----------- | :-------------------------------------------------- |
+| **線上課程** | Udemy, Coursera, YouTube                            |
+| **官方文檔** | Node.js Docs, TypeScript Handbook, Koa Guide        |
+| **實戰專案** | GitHub, 開源貢獻, 個人專案                          |
+| **社群資源** | Stack Overflow, Reddit, Discord                     |
+| **書籍推薦** | Node.js 設計模式, TypeScript 程式設計, Web API 設計 |
 
 ### 技能樹
 
